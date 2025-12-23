@@ -42,7 +42,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               rating: productData.rating || 4.5,
               description: productData.description,
               images: [
-                "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop",
+                productData.image || "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop",
               ],
               inStock: productData.in_stock,
               reviews: productData.reviews_count || 0,

@@ -46,7 +46,7 @@ export default function Home() {
       price: 49.99,
       originalPrice: 69.99,
       discount: 20,
-      image: "/products/kit.svg",
+      image: "https://images.unsplash.com/photo-1596994306875-60c4aeb7e7b8?w=500&h=500&fit=crop",
       description: "Complete kit with Arduino Uno, breadboard, components, and detailed tutorials for beginners",
     },
     {
@@ -55,7 +55,7 @@ export default function Home() {
       price: 59.99,
       originalPrice: 79.99,
       discount: 25,
-      image: "/products/microcontroller.svg",
+      image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
       description: "The latest Raspberry Pi with 4GB RAM, perfect for desktop computing and IoT projects",
     },
     {
@@ -64,7 +64,7 @@ export default function Home() {
       price: 89.99,
       originalPrice: 119.99,
       discount: 25,
-      image: "/products/kit.svg",
+      image: "https://images.unsplash.com/photo-1580126579312-94651dfd596d?w=500&h=500&fit=crop",
       description: "Comprehensive electronics learning kit with 100+ projects and detailed instruction manual",
     },
   ]
@@ -76,7 +76,7 @@ export default function Home() {
       name: "Arduino Uno R3 Microcontroller",
       price: 24.99,
       rating: 4.8,
-      image: "/products/microcontroller.svg",
+      image: "https://images.unsplash.com/photo-1596994306875-60c4aeb7e7b8?w=500&h=500&fit=crop",
       category: "Microcontrollers",
       description:
         "The Arduino Uno R3 is the most used and documented board in the Arduino family, perfect for beginners and experienced makers.",
@@ -86,7 +86,7 @@ export default function Home() {
       name: "Raspberry Pi 4 Model B - 4GB",
       price: 45.99,
       rating: 4.9,
-      image: "/products/microcontroller.svg",
+      image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
       category: "Microcontrollers",
       description:
         "The Raspberry Pi 4 Model B with 4GB RAM offers desktop-like performance for a wide range of applications and projects.",
@@ -96,7 +96,7 @@ export default function Home() {
       name: "Soldering Station Kit - Digital",
       price: 79.99,
       rating: 4.7,
-      image: "/products/tools.svg",
+      image: "https://images.unsplash.com/photo-1581092165854-40129fb4b04f?w=500&h=500&fit=crop",
       category: "Tools",
       description:
         "Professional digital soldering station with adjustable temperature control, multiple tips, and accessories for precision work.",
@@ -106,7 +106,7 @@ export default function Home() {
       name: "Ultrasonic Distance Sensor Pack",
       price: 12.99,
       rating: 4.6,
-      image: "/products/sensor.svg",
+      image: "https://images.unsplash.com/photo-1581092160562-40038f56c40d?w=500&h=500&fit=crop",
       category: "Sensors",
       description:
         "Pack of 5 HC-SR04 ultrasonic distance sensors for measuring distances in your robotics and automation projects.",
@@ -120,7 +120,7 @@ export default function Home() {
       name: "ESP32 Development Board",
       price: 8.99,
       rating: 4.5,
-      image: "/products/microcontroller.svg",
+      image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&h=500&fit=crop",
       category: "Microcontrollers",
       description: "ESP32 development board with WiFi and Bluetooth capabilities, perfect for IoT projects.",
     },
@@ -129,7 +129,7 @@ export default function Home() {
       name: "Temperature & Humidity Sensor",
       price: 4.99,
       rating: 4.4,
-      image: "/products/sensor.svg",
+      image: "https://images.unsplash.com/photo-1581092157544-8ac2b57ba21d?w=500&h=500&fit=crop",
       category: "Sensors",
       description: "DHT22 temperature and humidity sensor for environmental monitoring projects.",
     },
@@ -138,7 +138,7 @@ export default function Home() {
       name: "Beginner Electronics Kit",
       price: 34.99,
       rating: 4.7,
-      image: "/products/kit.svg",
+      image: "https://images.unsplash.com/photo-1580126579312-94651dfd596d?w=500&h=500&fit=crop",
       category: "Kits",
       description: "Complete electronics starter kit with breadboard, components, and project guide.",
     },
@@ -147,7 +147,7 @@ export default function Home() {
       name: "Digital Multimeter",
       price: 19.99,
       rating: 4.6,
-      image: "/products/tools.svg",
+      image: "https://images.unsplash.com/photo-1581092165854-40129fb4b04f?w=500&h=500&fit=crop",
       category: "Tools",
       description: "Digital multimeter for measuring voltage, current, resistance, and more.",
     },
@@ -160,7 +160,7 @@ export default function Home() {
       name: "OLED Display Module",
       price: 8.99,
       rating: 4.5,
-      image: "/products/components.svg",
+      image: "https://images.unsplash.com/photo-1581092160559-112debad63ca?w=500&h=500&fit=crop",
       category: "Components",
       description: "0.96-inch OLED display module with 128x64 resolution and I2C interface.",
     },
@@ -169,7 +169,7 @@ export default function Home() {
       name: "Servo Motor Pack",
       price: 14.99,
       rating: 4.6,
-      image: "/products/components.svg",
+      image: "https://images.unsplash.com/photo-1581092165854-40129fb4b04f?w=500&h=500&fit=crop",
       category: "Components",
       description: "Pack of 5 micro servo motors for robotics and automation projects.",
     },
@@ -178,7 +178,7 @@ export default function Home() {
       name: "Wireless IoT Sensor Kit",
       price: 49.99,
       rating: 4.7,
-      image: "/products/kit.svg",
+      image: "https://images.unsplash.com/photo-1580126579312-94651dfd596d?w=500&h=500&fit=crop",
       category: "Kits",
       description: "Complete wireless IoT sensor kit with temperature, humidity, motion, and light sensors.",
     },
@@ -187,7 +187,7 @@ export default function Home() {
       name: "Breadboard Kit",
       price: 9.99,
       rating: 4.4,
-      image: "/products/components.svg",
+      image: "https://images.unsplash.com/photo-1581092160562-40038f56c40d?w=500&h=500&fit=crop",
       category: "Components",
       description: "Breadboard kit with jumper wires and power supply module.",
     },
@@ -238,9 +238,6 @@ export default function Home() {
             </Link>
             <Link href="/category/kits" className="transition-colors hover:text-violet-600">
               Kits
-            </Link>
-            <Link href="/category/tools" className="transition-colors hover:text-violet-600">
-              Tools
             </Link>
             <Link href="/category/components" className="transition-colors hover:text-violet-600">
               Components
@@ -358,11 +355,10 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 mt-8">
             <CategoryCard name="Microcontrollers" icon="chip" />
             <CategoryCard name="Sensors" icon="activity" />
             <CategoryCard name="Kits" icon="package" />
-            <CategoryCard name="Tools" icon="tool" />
             <CategoryCard name="Components" icon="cpu" />
           </div>
         </div>
@@ -894,11 +890,6 @@ export default function Home() {
                 <li>
                   <Link href="/category/kits" className="text-white/80 hover:text-white">
                     Kits
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/tools" className="text-white/80 hover:text-white">
-                    Tools
                   </Link>
                 </li>
                 <li>

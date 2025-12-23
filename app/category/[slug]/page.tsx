@@ -17,7 +17,7 @@ const allProducts = [
     name: "Ultra Slim Laptop Pro",
     price: 1299.99,
     rating: 4.8,
-    image: "/products/laptop.svg",
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop",
     category: "Laptops",
     brand: "Apple",
     processor: "Intel Core i7",
@@ -28,7 +28,7 @@ const allProducts = [
     name: "Business Laptop Elite",
     price: 1499.99,
     rating: 4.7,
-    image: "/products/laptop.svg",
+    image: "https://images.unsplash.com/photo-1588872657840-790ff3bda245?w=500&h=500&fit=crop",
     category: "Laptops",
     brand: "Dell",
     processor: "Intel Core i5",
@@ -39,7 +39,7 @@ const allProducts = [
     name: "Gaming Laptop Extreme",
     price: 1899.99,
     rating: 4.9,
-    image: "/products/laptop.svg",
+    image: "https://images.unsplash.com/photo-1603642892514-e4fe3ce80a59?w=500&h=500&fit=crop",
     category: "Laptops",
     brand: "Asus",
     processor: "AMD Ryzen 7",
@@ -50,7 +50,7 @@ const allProducts = [
     name: "Student Laptop Basic",
     price: 699.99,
     rating: 4.5,
-    image: "/products/laptop.svg",
+    image: "https://images.unsplash.com/photo-1557821552-17105176677c?w=500&h=500&fit=crop",
     category: "Laptops",
     brand: "HP",
     processor: "Intel Core i5",
@@ -61,7 +61,7 @@ const allProducts = [
     name: "Convertible 2-in-1 Laptop",
     price: 999.99,
     rating: 4.6,
-    image: "/products/laptop.svg",
+    image: "https://images.unsplash.com/photo-1586657969055-d3babe78e487?w=500&h=500&fit=crop",
     category: "Laptops",
     brand: "Lenovo",
     processor: "Intel Core i7",
@@ -72,7 +72,7 @@ const allProducts = [
     name: "Ultrabook Pro",
     price: 1199.99,
     rating: 4.7,
-    image: "/products/laptop.svg",
+    image: "https://images.unsplash.com/photo-1588872657840-790ff3bda245?w=500&h=500&fit=crop",
     category: "Laptops",
     brand: "Apple",
     processor: "Intel Core i7",
@@ -87,7 +87,7 @@ const microcontrollerProducts = [
     name: "Arduino Uno R3",
     price: 24.99,
     rating: 4.8,
-    image: "/products/microcontroller.svg",
+    image: "https://images.unsplash.com/photo-1596994306875-60c4aeb7e7b8?w=500&h=500&fit=crop",
     category: "Microcontrollers",
     brand: "Arduino",
     processor: "ATmega328P",
@@ -98,7 +98,7 @@ const microcontrollerProducts = [
     name: "Raspberry Pi 4 - 4GB",
     price: 59.99,
     rating: 4.9,
-    image: "/products/microcontroller.svg",
+    image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
     category: "Microcontrollers",
     brand: "Raspberry Pi",
     processor: "Broadcom BCM2711",
@@ -109,7 +109,7 @@ const microcontrollerProducts = [
     name: "ESP32 Development Board",
     price: 8.99,
     rating: 4.7,
-    image: "/products/microcontroller.svg",
+    image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&h=500&fit=crop",
     category: "Microcontrollers",
     brand: "Espressif",
     processor: "Tensilica Xtensa LX6",
@@ -120,7 +120,7 @@ const microcontrollerProducts = [
     name: "Arduino Nano",
     price: 12.99,
     rating: 4.6,
-    image: "/products/microcontroller.svg",
+    image: "https://images.unsplash.com/photo-1596994306875-60c4aeb7e7b8?w=500&h=500&fit=crop",
     category: "Microcontrollers",
     brand: "Arduino",
     processor: "ATmega328P",
@@ -131,7 +131,7 @@ const microcontrollerProducts = [
     name: "Raspberry Pi Pico",
     price: 4.99,
     rating: 4.5,
-    image: "/products/microcontroller.svg",
+    image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
     category: "Microcontrollers",
     brand: "Raspberry Pi",
     processor: "RP2040",
@@ -142,7 +142,7 @@ const microcontrollerProducts = [
     name: "ESP8266 NodeMCU",
     price: 6.99,
     rating: 4.4,
-    image: "/products/microcontroller.svg",
+    image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&h=500&fit=crop",
     category: "Microcontrollers",
     brand: "Espressif",
     processor: "Tensilica L106",
@@ -157,7 +157,7 @@ const sensorProducts = [
     name: "DHT22 Temperature & Humidity Sensor",
     price: 4.99,
     rating: 4.6,
-    image: "/products/sensor.svg",
+    image: "https://images.unsplash.com/photo-1581092157544-8ac2b57ba21d?w=500&h=500&fit=crop",
     category: "Sensors",
     brand: "Generic",
     type: "Temperature",
@@ -167,7 +167,7 @@ const sensorProducts = [
     name: "HC-SR04 Ultrasonic Distance Sensor",
     price: 2.99,
     rating: 4.5,
-    image: "/products/sensor.svg",
+    image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
     category: "Sensors",
     brand: "Generic",
     type: "Distance",
@@ -177,7 +177,7 @@ const sensorProducts = [
     name: "PIR Motion Sensor",
     price: 3.99,
     rating: 4.4,
-    image: "/products/sensor.svg",
+    image: "https://images.unsplash.com/photo-1581092916550-e323abad3069?w=500&h=500&fit=crop",
     category: "Sensors",
     brand: "Generic",
     type: "Motion",
@@ -199,19 +199,62 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
   // Get the appropriate products based on category
   useEffect(() => {
-    let products
-    switch (params.slug.toLowerCase()) {
-      case "microcontrollers":
-        products = microcontrollerProducts
-        break
-      case "sensors":
-        products = sensorProducts
-        break
-      default:
-        products = allProducts
+    const fetchCategoryProducts = async () => {
+      try {
+        let categoryName
+        switch (params.slug.toLowerCase()) {
+          case "microcontrollers":
+            categoryName = "Microcontrollers"
+            break
+          case "sensors":
+            categoryName = "Sensors"
+            break
+          default:
+            categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
+        }
+
+        const response = await fetch(`/api/category-products?category=${categoryName}`)
+        const products = await response.json()
+
+        // Fallback to hardcoded data if fetch fails
+        if (!products || products.length === 0) {
+          let fallbackProducts
+          switch (params.slug.toLowerCase()) {
+            case "microcontrollers":
+              fallbackProducts = microcontrollerProducts
+              break
+            case "sensors":
+              fallbackProducts = sensorProducts
+              break
+            default:
+              fallbackProducts = allProducts
+          }
+          setOriginalProducts(fallbackProducts)
+          setFilteredProducts(fallbackProducts)
+        } else {
+          setOriginalProducts(products)
+          setFilteredProducts(products)
+        }
+      } catch (error) {
+        console.error("Error fetching category products:", error)
+        // Fallback to hardcoded data on error
+        let fallbackProducts
+        switch (params.slug.toLowerCase()) {
+          case "microcontrollers":
+            fallbackProducts = microcontrollerProducts
+            break
+          case "sensors":
+            fallbackProducts = sensorProducts
+            break
+          default:
+            fallbackProducts = allProducts
+        }
+        setOriginalProducts(fallbackProducts)
+        setFilteredProducts(fallbackProducts)
+      }
     }
-    setOriginalProducts(products)
-    setFilteredProducts(products)
+
+    fetchCategoryProducts()
   }, [params.slug])
 
   // Handle brand checkbox change
