@@ -2,24 +2,30 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronRight, Loader2 } from "lucide-react"
+import { ChevronRight, Loader2, LogIn } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useToast } from "@/components/ui/use-toast"
+import Cookies from "js-cookie"
 
 export default function CheckoutPage() {
+  const router = useRouter()
   const { items, subtotal, clearCart, isLoaded } = useCart()
   const { addToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
   const [orderNumber, setOrderNumber] = useState("")
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const [customerInfo, setCustomerInfo] = useState<{id?: number, name: string, email: string} | null>(null)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -47,10 +53,63 @@ export default function CheckoutPage() {
         return 0
     }
   }
+
+  // Get delivery message based on shipping method
+  const getDeliveryMessage = (method: string) => {
+    switch (method) {
+      case "express":
+        return "Your order will be delivered within 1-2 business days"
+      case "overnight":
+        return "Your order will be delivered by the next business day"
+      default:
+        return "Your order will be delivered within 2-3 business days"
+    }
+  }
+
+  // Get processing message based on shipping method
+  const getProcessingMessage = (method: string) => {
+    switch (method) {
+      case "express":
+        return "We'll prioritize and process your order within 12 hours"
+      case "overnight":
+        return "We'll immediately process your order for same-day dispatch"
+      default:
+        return "We'll process your order within 24 hours"
+    }
+  }
   
   const shipping = getShippingCost(shippingMethod)
   const tax = subtotal * 0.08 // 8% tax
   const total = subtotal + shipping + tax
+
+  // Check if user is logged in
+  useEffect(() => {
+    const loggedIn = Cookies.get("customer_logged_in") === "true"
+    setIsLoggedIn(loggedIn)
+    
+    if (loggedIn) {
+      const userInfo = localStorage.getItem("customer_user")
+      if (userInfo) {
+        try {
+          const parsed = JSON.parse(userInfo)
+          setCustomerInfo({
+            id: parsed.id,
+            name: parsed.name,
+            email: parsed.email
+          })
+          // Pre-fill form with customer info
+          const nameParts = parsed.name.split(" ")
+          setFormData(prev => ({
+            ...prev,
+            firstName: nameParts[0] || "",
+            lastName: nameParts.slice(1).join(" ") || "",
+            email: parsed.email || ""
+          }))
+        } catch (e) {}
+      }
+    }
+    setCheckingAuth(false)
+  }, [])
 
   const validateForm = () => {
     const errors: Record<string, string> = {}
@@ -93,6 +152,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          customer_id: customerInfo?.id,
           customer_name: `${formData.firstName} ${formData.lastName}`,
           customer_email: formData.email,
           subtotal: subtotal,
@@ -109,6 +169,7 @@ export default function CheckoutPage() {
           items: items.map(item => ({
             product_id: item.id,
             product_name: item.name,
+            product_slug: item.slug,
             quantity: item.quantity,
             price: item.price
           }))
@@ -142,12 +203,56 @@ export default function CheckoutPage() {
     })
   }
 
-  // Show loading while cart is being loaded from localStorage
-  if (!isLoaded) {
+  // Show loading while cart is being loaded from localStorage or checking auth
+  if (!isLoaded || checkingAuth) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
         <p className="mt-2 text-gray-600">Loading checkout...</p>
+      </div>
+    )
+  }
+
+  // Require login to checkout
+  if (!isLoggedIn) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <div className="container py-8 max-w-2xl mx-auto">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-violet-100 text-center">
+            <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <LogIn className="h-8 w-8 text-violet-600" />
+            </div>
+            <h1 className="text-2xl font-bold mb-4">Please Log In to Continue</h1>
+            <p className="text-gray-600 mb-6">
+              You need to be logged in to place an order. Please log in or create an account to continue with your checkout.
+            </p>
+            {items.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-600">
+                  You have <span className="font-semibold">{items.length} item{items.length !== 1 ? 's' : ''}</span> in your cart worth <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                </p>
+              </div>
+            )}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/customer-login">
+                <Button className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Log In
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  Create Account
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-6">
+              <Link href="/cart" className="text-violet-600 hover:underline text-sm">
+                ← Back to Cart
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -186,7 +291,7 @@ export default function CheckoutPage() {
                   <span className="bg-violet-200 text-violet-800 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     1
                   </span>
-                  <span>We'll process your order within 24 hours</span>
+                  <span>{getProcessingMessage(shippingMethod)}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="bg-violet-200 text-violet-800 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -198,7 +303,7 @@ export default function CheckoutPage() {
                   <span className="bg-violet-200 text-violet-800 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     3
                   </span>
-                  <span>Your order will be delivered within 2-3 business days</span>
+                  <span>{getDeliveryMessage(shippingMethod)}</span>
                 </li>
               </ol>
             </div>

@@ -4,7 +4,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronRight, Star, ShoppingCart, Heart, Share2, Truck, ShieldCheck, RotateCcw } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { ChevronRight, Star, ShoppingCart, Heart, Share2, Truck, ShieldCheck, RotateCcw, CheckCircle, Loader2 } from "lucide-react"
 import ProductCarousel from "@/components/product-carousel"
 import { useCart } from "@/context/cart-context"
 import { useWishlist } from "@/context/wishlist-context"
@@ -12,12 +15,38 @@ import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { getProductBySlug } from "@/app/actions/product-actions"
 import { findProductBySlug } from "@/lib/product-data"
+import Cookies from "js-cookie"
+
+// Review type
+interface Review {
+  id: number
+  product_slug: string
+  customer_name: string
+  rating: number
+  title?: string
+  comment: string
+  verified_purchase: boolean
+  created_at: string
+}
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
   const router = useRouter()
   const [product, setProduct] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Review state
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(true)
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [submittingReview, setSubmittingReview] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [customerInfo, setCustomerInfo] = useState<{name: string, email: string, id?: number} | null>(null)
+  const [reviewForm, setReviewForm] = useState({
+    rating: 5,
+    title: "",
+    comment: ""
+  })
 
   useEffect(() => {
     async function fetchProduct() {
@@ -106,6 +135,102 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
     fetchProduct()
   }, [params.slug])
+
+  // Fetch reviews
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        setLoadingReviews(true)
+        const response = await fetch(`/api/reviews?product_slug=${params.slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          setReviews(data.reviews || [])
+        }
+      } catch (err) {
+        console.error("Error fetching reviews:", err)
+      } finally {
+        setLoadingReviews(false)
+      }
+    }
+    fetchReviews()
+  }, [params.slug])
+
+  // Check if user is logged in
+  useEffect(() => {
+    const loggedIn = Cookies.get("customer_logged_in") === "true"
+    setIsLoggedIn(loggedIn)
+    
+    if (loggedIn) {
+      const userInfo = localStorage.getItem("customer_user")
+      if (userInfo) {
+        try {
+          const parsed = JSON.parse(userInfo)
+          setCustomerInfo({
+            name: parsed.name,
+            email: parsed.email,
+            id: parsed.id
+          })
+        } catch (e) {}
+      }
+    }
+  }, [])
+
+  // Handle review submission
+  const handleSubmitReview = async () => {
+    if (!customerInfo) return
+    if (!reviewForm.comment.trim()) {
+      toast({
+        title: "Error",
+        description: "Please write a review comment",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setSubmittingReview(true)
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_slug: params.slug,
+          customer_name: customerInfo.name,
+          customer_email: customerInfo.email,
+          customer_id: customerInfo.id,
+          rating: reviewForm.rating,
+          title: reviewForm.title,
+          comment: reviewForm.comment
+        })
+      })
+
+      const data = await response.json()
+      
+      if (response.ok && data.success) {
+        toast({
+          title: "Review Submitted",
+          description: "Thank you for your review!"
+        })
+        // Add the new review to the list
+        setReviews([data.review, ...reviews])
+        setShowReviewForm(false)
+        setReviewForm({ rating: 5, title: "", comment: "" })
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to submit review",
+          variant: "destructive"
+        })
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to submit review",
+        variant: "destructive"
+      })
+    } finally {
+      setSubmittingReview(false)
+    }
+  }
 
   const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist()
@@ -433,119 +558,220 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             <div className="space-y-8">
               <div className="flex items-center gap-4">
                 <div className="text-center">
-                  <div className="text-5xl font-bold">{product.rating}</div>
+                  <div className="text-5xl font-bold">
+                    {reviews.length > 0 
+                      ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+                      : product.rating}
+                  </div>
                   <div className="flex text-amber-500 justify-center mt-1">
                     {Array(5)
                       .fill(0)
-                      .map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-5 w-5 ${i < Math.floor(product.rating) ? "fill-current" : "fill-none"}`}
-                        />
-                      ))}
+                      .map((_, i) => {
+                        const avgRating = reviews.length > 0 
+                          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
+                          : product.rating
+                        return (
+                          <Star
+                            key={i}
+                            className={`h-5 w-5 ${i < Math.floor(avgRating) ? "fill-current" : "fill-none"}`}
+                          />
+                        )
+                      })}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">{product.reviews} reviews</div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    {reviews.length > 0 ? reviews.length : product.reviews} reviews
+                  </div>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm w-8">5★</span>
-                    <div className="h-2 bg-gray-200 rounded-full flex-1">
-                      <div className="h-2 bg-amber-500 rounded-full w-[85%]"></div>
-                    </div>
-                    <span className="text-sm w-8">85%</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm w-8">4★</span>
-                    <div className="h-2 bg-gray-200 rounded-full flex-1">
-                      <div className="h-2 bg-amber-500 rounded-full w-[10%]"></div>
-                    </div>
-                    <span className="text-sm w-8">10%</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm w-8">3★</span>
-                    <div className="h-2 bg-gray-200 rounded-full flex-1">
-                      <div className="h-2 bg-amber-500 rounded-full w-[3%]"></div>
-                    </div>
-                    <span className="text-sm w-8">3%</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm w-8">2★</span>
-                    <div className="h-2 bg-gray-200 rounded-full flex-1">
-                      <div className="h-2 bg-amber-500 rounded-full w-[1%]"></div>
-                    </div>
-                    <span className="text-sm w-8">1%</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm w-8">1★</span>
-                    <div className="h-2 bg-gray-200 rounded-full flex-1">
-                      <div className="h-2 bg-amber-500 rounded-full w-[1%]"></div>
-                    </div>
-                    <span className="text-sm w-8">1%</span>
-                  </div>
+                  {[5, 4, 3, 2, 1].map((star) => {
+                    const count = reviews.filter(r => r.rating === star).length
+                    const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : (star === 5 ? 85 : star === 4 ? 10 : 5)
+                    return (
+                      <div key={star} className="flex items-center gap-2">
+                        <span className="text-sm w-8">{star}★</span>
+                        <div className="h-2 bg-gray-200 rounded-full flex-1">
+                          <div 
+                            className="h-2 bg-amber-500 rounded-full" 
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm w-8">{Math.round(percentage)}%</span>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
-              <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
-                Write a Review
-              </Button>
+              {/* Write a Review Button / Form */}
+              {isLoggedIn ? (
+                showReviewForm ? (
+                  <div className="border rounded-lg p-6 space-y-4">
+                    <h3 className="text-lg font-medium">Write Your Review</h3>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Your Rating</Label>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                            className="focus:outline-none"
+                          >
+                            <Star 
+                              className={`h-8 w-8 ${star <= reviewForm.rating ? "text-amber-500 fill-current" : "text-gray-300"}`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="review-title">Review Title (Optional)</Label>
+                      <Input 
+                        id="review-title"
+                        placeholder="Summarize your experience"
+                        value={reviewForm.title}
+                        onChange={(e) => setReviewForm(prev => ({ ...prev, title: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="review-comment">Your Review</Label>
+                      <Textarea 
+                        id="review-comment"
+                        placeholder="Share your experience with this product..."
+                        rows={4}
+                        value={reviewForm.comment}
+                        onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleSubmitReview}
+                        disabled={submittingReview}
+                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                      >
+                        {submittingReview ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : "Submit Review"}
+                      </Button>
+                      <Button variant="outline" onClick={() => setShowReviewForm(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={() => setShowReviewForm(true)}
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+                  >
+                    Write a Review
+                  </Button>
+                )
+              ) : (
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <p className="text-gray-600 mb-3">Please log in to write a review</p>
+                  <Link href="/customer-login">
+                    <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                      Log In to Review
+                    </Button>
+                  </Link>
+                </div>
+              )}
 
+              {/* Reviews List */}
               <div className="space-y-6">
-                <div className="border-b pb-6">
-                  <div className="flex justify-between mb-2">
-                    <h4 className="font-medium">Sarah Johnson</h4>
-                    <span className="text-gray-500 text-sm">2 weeks ago</span>
+                {loadingReviews ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
                   </div>
-                  <div className="flex text-amber-500 mb-2">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-current" />
-                      ))}
-                  </div>
-                  <p className="text-gray-700">
-                    Perfect starter kit for beginners! The instructions are clear and the projects are fun to build. My
-                    12-year-old son was able to follow along with minimal help from me.
-                  </p>
-                </div>
+                ) : (
+                  <>
+                    {/* User submitted reviews from database */}
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b pb-6">
+                        <div className="flex justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{review.customer_name}</h4>
+                            {review.verified_purchase && (
+                              <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                                <CheckCircle className="h-3 w-3" />
+                                Verified Purchase
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-gray-500 text-sm">
+                            {new Date(review.created_at).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex text-amber-500 mb-2">
+                          {Array(5)
+                            .fill(0)
+                            .map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < review.rating ? "fill-current" : "fill-none"}`} />
+                            ))}
+                        </div>
+                        {review.title && <h5 className="font-medium mb-1">{review.title}</h5>}
+                        <p className="text-gray-700">{review.comment}</p>
+                      </div>
+                    ))}
 
-                <div className="border-b pb-6">
-                  <div className="flex justify-between mb-2">
-                    <h4 className="font-medium">Michael Chen</h4>
-                    <span className="text-gray-500 text-sm">1 month ago</span>
-                  </div>
-                  <div className="flex text-amber-500 mb-2">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <Star key={i} className={`h-4 w-4 ${i < 4 ? "fill-current" : "fill-none"}`} />
-                      ))}
-                  </div>
-                  <p className="text-gray-700">
-                    Great value for the price. The components are good quality and the Arduino board works perfectly. I
-                    would have liked more advanced projects in the guide, but it's a solid starting point.
-                  </p>
-                </div>
+                    {/* Default sample reviews - always shown */}
+                    <div className="border-b pb-6">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium">Sarah Johnson</h4>
+                        <span className="text-gray-500 text-sm">2 weeks ago</span>
+                      </div>
+                      <div className="flex text-amber-500 mb-2">
+                        {Array(5).fill(0).map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-current" />
+                        ))}
+                      </div>
+                      <p className="text-gray-700">
+                        Perfect starter kit for beginners! The instructions are clear and the projects are fun to build. My
+                        12-year-old son was able to follow along with minimal help from me.
+                      </p>
+                    </div>
 
-                <div className="border-b pb-6">
-                  <div className="flex justify-between mb-2">
-                    <h4 className="font-medium">Emily Rodriguez</h4>
-                    <span className="text-gray-500 text-sm">2 months ago</span>
-                  </div>
-                  <div className="flex text-amber-500 mb-2">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <Star key={i} className={`h-4 w-4 ${i < 5 ? "fill-current" : "fill-none"}`} />
-                      ))}
-                  </div>
-                  <p className="text-gray-700">
-                    I'm using this kit in my classroom to teach basic electronics and programming. The students love it
-                    and the components have held up well to repeated use. Highly recommended for educators!
-                  </p>
-                </div>
+                    <div className="border-b pb-6">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium">Michael Chen</h4>
+                        <span className="text-gray-500 text-sm">1 month ago</span>
+                      </div>
+                      <div className="flex text-amber-500 mb-2">
+                        {Array(5).fill(0).map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < 4 ? "fill-current" : "fill-none"}`} />
+                        ))}
+                      </div>
+                      <p className="text-gray-700">
+                        Great value for the price. The components are good quality and the Arduino board works perfectly. I
+                        would have liked more advanced projects in the guide, but it's a solid starting point.
+                      </p>
+                    </div>
+
+                    <div className="border-b pb-6">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-medium">Emily Rodriguez</h4>
+                        <span className="text-gray-500 text-sm">2 months ago</span>
+                      </div>
+                      <div className="flex text-amber-500 mb-2">
+                        {Array(5).fill(0).map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < 5 ? "fill-current" : "fill-none"}`} />
+                        ))}
+                      </div>
+                      <p className="text-gray-700">
+                        I'm using this kit in my classroom to teach basic electronics and programming. The students love it
+                        and the components have held up well to repeated use. Highly recommended for educators!
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
-
-              <Button variant="outline">Load More Reviews</Button>
             </div>
           </TabsContent>
         </Tabs>

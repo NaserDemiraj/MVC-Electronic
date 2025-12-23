@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronRight, SlidersHorizontal } from "lucide-react"
 import ProductCard from "@/components/product-card"
+import { allMockProducts, featuredProducts as featuredMockProducts } from "@/lib/product-data"
 
 // Mock products data - using local images only
 const allProducts = [
@@ -215,7 +216,29 @@ const componentProducts = [
 ]
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
+  // Get proper display name for category
+  const getCategoryDisplayName = (slug: string) => {
+    switch (slug.toLowerCase()) {
+      case "all":
+        return "All Products"
+      case "featured":
+        return "Featured Products"
+      case "microcontrollers":
+        return "Microcontrollers"
+      case "sensors":
+        return "Sensors"
+      case "components":
+        return "Components"
+      case "kits":
+        return "Kits"
+      case "laptops":
+        return "Laptops"
+      default:
+        return slug.charAt(0).toUpperCase() + slug.slice(1)
+    }
+  }
+  
+  const categoryName = getCategoryDisplayName(params.slug)
 
   // State for filters
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000])
@@ -227,7 +250,8 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   const [originalProducts, setOriginalProducts] = useState<any[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = params.slug.toLowerCase() === "components" ? 6 : 4
+  // Show more products per page
+  const itemsPerPage = params.slug.toLowerCase() === "all" ? 12 : params.slug.toLowerCase() === "featured" ? 8 : 8
 
   // Get the appropriate products based on category
   useEffect(() => {
@@ -242,6 +266,39 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
     const fetchCategoryProducts = async () => {
       try {
+        // Handle special categories
+        if (params.slug.toLowerCase() === "all") {
+          // Show all products from mock data
+          const allProductsData = allMockProducts.map(p => ({
+            id: p.id,
+            name: p.name,
+            price: p.salePrice || p.price,
+            rating: p.rating,
+            image: p.image,
+            category: p.category,
+            brand: p.brand || "Generic"
+          }))
+          setOriginalProducts(allProductsData)
+          setFilteredProducts(allProductsData)
+          return
+        }
+
+        if (params.slug.toLowerCase() === "featured") {
+          // Show featured products
+          const featuredData = featuredMockProducts.map(p => ({
+            id: p.id,
+            name: p.name,
+            price: p.salePrice || p.price,
+            rating: p.rating,
+            image: p.image,
+            category: p.category,
+            brand: p.brand || "Generic"
+          }))
+          setOriginalProducts(featuredData)
+          setFilteredProducts(featuredData)
+          return
+        }
+
         let categoryName
         switch (params.slug.toLowerCase()) {
           case "microcontrollers":
@@ -252,6 +309,12 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             break
           case "components":
             categoryName = "Components"
+            break
+          case "kits":
+            categoryName = "Kits"
+            break
+          case "laptops":
+            categoryName = "Laptops"
             break
           default:
             categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
@@ -278,8 +341,16 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             case "components":
               fallbackProducts = componentProducts
               break
+            case "kits":
+              fallbackProducts = allMockProducts.filter(p => p.category === "Kits").map(p => ({
+                id: p.id, name: p.name, price: p.salePrice || p.price, rating: p.rating, image: p.image, category: p.category, brand: p.brand || "Generic"
+              }))
+              break
             default:
-              fallbackProducts = allProducts
+              // Use all mock products as fallback
+              fallbackProducts = allMockProducts.map(p => ({
+                id: p.id, name: p.name, price: p.salePrice || p.price, rating: p.rating, image: p.image, category: p.category, brand: p.brand || "Generic"
+              }))
           }
           setOriginalProducts(fallbackProducts)
           setFilteredProducts(fallbackProducts)
@@ -302,8 +373,16 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           case "components":
             fallbackProducts = componentProducts
             break
+          case "kits":
+            fallbackProducts = allMockProducts.filter(p => p.category === "Kits").map(p => ({
+              id: p.id, name: p.name, price: p.salePrice || p.price, rating: p.rating, image: p.image, category: p.category, brand: p.brand || "Generic"
+            }))
+            break
           default:
-            fallbackProducts = allProducts
+            // Use all mock products as fallback
+            fallbackProducts = allMockProducts.map(p => ({
+              id: p.id, name: p.name, price: p.salePrice || p.price, rating: p.rating, image: p.image, category: p.category, brand: p.brand || "Generic"
+            }))
         }
         setOriginalProducts(fallbackProducts)
         setFilteredProducts(fallbackProducts)

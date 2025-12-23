@@ -1,6 +1,5 @@
 import { sql } from "@/lib/db"
 import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
 
 export async function POST(request: Request) {
   try {
@@ -15,15 +14,7 @@ export async function POST(request: Request) {
 
     // Always allow demo credentials
     if (email === "admin@example.com" && password === "admin123") {
-      const cookieStore = await cookies()
-      cookieStore.set("auth_token", "demo_admin_token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7 // 1 week
-      })
-
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: true,
         user: {
           id: 1,
@@ -32,6 +23,16 @@ export async function POST(request: Request) {
           role: "super_admin"
         }
       })
+
+      // Set cookie on the response
+      response.cookies.set("auth_token", "demo_admin_token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7 // 1 week
+      })
+
+      return response
     }
 
     // If not demo credentials and database is available, check database
@@ -59,16 +60,7 @@ export async function POST(request: Request) {
             // Generate a simple token
             const token = `admin_${user.id}_${Date.now()}`
 
-            // Set the auth cookie
-            const cookieStore = await cookies()
-            cookieStore.set("auth_token", token, {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "lax",
-              maxAge: 60 * 60 * 24 * 7 // 1 week
-            })
-
-            return NextResponse.json({
+            const response = NextResponse.json({
               success: true,
               user: {
                 id: user.id,
@@ -77,6 +69,16 @@ export async function POST(request: Request) {
                 role: user.role
               }
             })
+
+            // Set cookie on the response
+            response.cookies.set("auth_token", token, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "lax",
+              maxAge: 60 * 60 * 24 * 7 // 1 week
+            })
+
+            return response
           }
         }
       } catch (dbError) {

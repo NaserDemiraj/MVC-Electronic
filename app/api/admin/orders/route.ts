@@ -114,12 +114,12 @@ export async function POST(request: Request) {
 
     const result = await sql`
       INSERT INTO orders (
-        order_number, customer_name, customer_email, status,
+        order_number, customer_id, customer_name, customer_email, status,
         subtotal, shipping_cost, tax, total,
         shipping_address, shipping_city, shipping_state, shipping_zip, shipping_country,
         shipping_method, payment_method
       ) VALUES (
-        ${orderNumber}, ${data.customer_name}, ${data.customer_email}, 'pending',
+        ${orderNumber}, ${data.customer_id || null}, ${data.customer_name}, ${data.customer_email}, 'pending',
         ${data.subtotal}, ${data.shipping_cost || 0}, ${data.tax || 0}, ${data.total},
         ${data.shipping_address}, ${data.shipping_city}, ${data.shipping_state}, 
         ${data.shipping_zip}, ${data.shipping_country},
@@ -132,24 +132,32 @@ export async function POST(request: Request) {
 
     // Save order items if provided
     if (data.items && Array.isArray(data.items) && data.items.length > 0) {
-      // Ensure order_items table exists
+      // Ensure order_items table exists with product_slug for review verification
       await sql`
         CREATE TABLE IF NOT EXISTS order_items (
           id SERIAL PRIMARY KEY,
           order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
           product_id VARCHAR(100),
           product_name VARCHAR(255) NOT NULL,
+          product_slug VARCHAR(255),
           quantity INTEGER NOT NULL,
           price NUMERIC(10,2) NOT NULL,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `
 
+      // Add product_slug column if it doesn't exist (for existing tables)
+      try {
+        await sql`ALTER TABLE order_items ADD COLUMN IF NOT EXISTS product_slug VARCHAR(255)`
+      } catch (e) {
+        // Column might already exist
+      }
+
       // Insert each item
       for (const item of data.items) {
         await sql`
-          INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
-          VALUES (${newOrder.id}, ${item.product_id}, ${item.product_name}, ${item.quantity}, ${item.price})
+          INSERT INTO order_items (order_id, product_id, product_name, product_slug, quantity, price)
+          VALUES (${newOrder.id}, ${item.product_id}, ${item.product_name}, ${item.product_slug || null}, ${item.quantity}, ${item.price})
         `
       }
     }

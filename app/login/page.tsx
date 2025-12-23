@@ -30,14 +30,20 @@ export default function LoginPage() {
     }
 
     try {
-      // Call the login API
+      // Call the login API with timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal
       })
+
+      clearTimeout(timeoutId)
 
       const data = await response.json()
 
@@ -58,11 +64,15 @@ export default function LoginPage() {
         sameSite: "lax"
       })
 
-      // Redirect to admin
-      router.push("/admin")
-    } catch (err) {
+      // Redirect to admin dashboard immediately
+      window.location.href = "/admin"
+    } catch (err: any) {
       console.error("Login error:", err)
-      setError("An error occurred. Please try again.")
+      if (err.name === 'AbortError') {
+        setError("Request timed out. Please try again.")
+      } else {
+        setError("An error occurred. Please try again.")
+      }
       setIsLoading(false)
     }
   }
