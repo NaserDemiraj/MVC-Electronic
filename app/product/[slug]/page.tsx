@@ -25,70 +25,70 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         setLoading(true)
         let foundProduct = false
         
-        // Try to fetch from database first
-        try {
-          const response = await fetch(`/api/products?slug=${params.slug}`)
-          if (response.ok) {
-            const data = await response.json()
-            if (data && data.length > 0) {
-              const productData = data[0]
-              const price = parseFloat(productData.price) || 0
-              const discountPrice = productData.discount_price ? parseFloat(productData.discount_price) : null
-              
-              setProduct({
-                id: productData.id.toString(),
-                name: productData.name,
-                slug: productData.slug,
-                price: discountPrice || price,
-                originalPrice: price,
-                salePrice: discountPrice,
-                isOnSale: !!discountPrice && discountPrice < price,
-                rating: productData.rating || 4.5,
-                description: productData.description,
-                images: [
-                  productData.image || "/placeholder.svg",
-                ],
-                inStock: productData.in_stock,
-                reviews: productData.reviews_count || 0,
-                stock_quantity: productData.stock_quantity || 0,
-                specs: [],
-                components: [],
-                features: [],
-                specifications: {},
-              })
-              foundProduct = true
-            }
-          }
-        } catch (dbError) {
-          console.log("Database fetch failed, trying local data...")
+        // Try local mock data FIRST (has verified local images)
+        const mockProduct = findProductBySlug(params.slug)
+        if (mockProduct) {
+          setProduct({
+            id: mockProduct.id,
+            name: mockProduct.name,
+            slug: mockProduct.slug,
+            price: mockProduct.salePrice || mockProduct.price,
+            originalPrice: mockProduct.originalPrice || mockProduct.price,
+            salePrice: mockProduct.salePrice,
+            isOnSale: mockProduct.isOnSale || (mockProduct.salePrice && mockProduct.salePrice < mockProduct.price),
+            rating: mockProduct.rating,
+            description: mockProduct.description,
+            images: mockProduct.images,
+            inStock: mockProduct.inStock,
+            reviews: Math.floor(mockProduct.rating * 20),
+            stock_quantity: mockProduct.stockQuantity,
+            specs: [],
+            components: [],
+            features: mockProduct.features || [],
+            specifications: mockProduct.specifications || {},
+            category: mockProduct.category,
+            brand: mockProduct.brand,
+          })
+          foundProduct = true
         }
         
-        // Fallback to local mock data if not found in database
+        // Fallback to database if not in local data
         if (!foundProduct) {
-          const mockProduct = findProductBySlug(params.slug)
-          if (mockProduct) {
-            setProduct({
-              id: mockProduct.id,
-              name: mockProduct.name,
-              slug: mockProduct.slug,
-              price: mockProduct.salePrice || mockProduct.price,
-              originalPrice: mockProduct.originalPrice || mockProduct.price,
-              salePrice: mockProduct.salePrice,
-              isOnSale: mockProduct.isOnSale || (mockProduct.salePrice && mockProduct.salePrice < mockProduct.price),
-              rating: mockProduct.rating,
-              description: mockProduct.description,
-              images: mockProduct.images,
-              inStock: mockProduct.inStock,
-              reviews: Math.floor(mockProduct.rating * 20),
-              stock_quantity: mockProduct.stockQuantity,
-              specs: [],
-              components: [],
-              features: mockProduct.features || [],
-              specifications: mockProduct.specifications || {},
-              category: mockProduct.category,
-              brand: mockProduct.brand,
-            })
-            foundProduct = true
+          try {
+            const response = await fetch(`/api/products?slug=${params.slug}`)
+            if (response.ok) {
+              const data = await response.json()
+              if (data && data.length > 0) {
+                const productData = data[0]
+                const price = parseFloat(productData.price) || 0
+                const discountPrice = productData.discount_price ? parseFloat(productData.discount_price) : null
+                
+                setProduct({
+                  id: productData.id.toString(),
+                  name: productData.name,
+                  slug: productData.slug,
+                  price: discountPrice || price,
+                  originalPrice: price,
+                  salePrice: discountPrice,
+                  isOnSale: !!discountPrice && discountPrice < price,
+                  rating: productData.rating || 4.5,
+                  description: productData.description,
+                  images: [
+                    productData.image || "/placeholder.svg",
+                  ],
+                  inStock: productData.in_stock,
+                  reviews: productData.reviews_count || 0,
+                  stock_quantity: productData.stock_quantity || 0,
+                  specs: [],
+                  components: [],
+                  features: [],
+                  specifications: {},
+                })
+                foundProduct = true
+              }
+            }
+          } catch (dbError) {
+            console.log("Database fetch failed...")
           }
         }
         

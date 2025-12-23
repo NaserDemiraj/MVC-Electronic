@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface FallbackImageProps {
   src: string
@@ -13,8 +13,16 @@ interface FallbackImageProps {
 const DEFAULT_PRODUCT_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect fill='%23f3f4f6' width='300' height='300'/%3E%3Cg transform='translate(75,75)'%3E%3Crect fill='%239ca3af' x='25' y='20' width='100' height='70' rx='5'/%3E%3Crect fill='%236b7280' x='35' y='30' width='80' height='50' rx='3'/%3E%3Ccircle fill='%23d1d5db' cx='75' cy='55' r='15'/%3E%3Crect fill='%239ca3af' x='10' y='100' width='20' height='30'/%3E%3Crect fill='%239ca3af' x='40' y='100' width='20' height='30'/%3E%3Crect fill='%239ca3af' x='70' y='100' width='20' height='30'/%3E%3Crect fill='%239ca3af' x='100' y='100' width='20' height='30'/%3E%3C/g%3E%3C/svg%3E"
 
 export function FallbackImage({ src, alt, fallbackSrc, className }: FallbackImageProps) {
-  const [imgSrc, setImgSrc] = useState(src)
+  const [imgSrc, setImgSrc] = useState(src || DEFAULT_PRODUCT_PLACEHOLDER)
   const [hasError, setHasError] = useState(false)
+
+  // Update imgSrc when src prop changes
+  useEffect(() => {
+    if (src) {
+      setImgSrc(src)
+      setHasError(false)
+    }
+  }, [src])
 
   const handleError = () => {
     if (!hasError) {
@@ -29,7 +37,7 @@ export function FallbackImage({ src, alt, fallbackSrc, className }: FallbackImag
 
   return (
     <img 
-      src={imgSrc || DEFAULT_PRODUCT_PLACEHOLDER} 
+      src={imgSrc} 
       alt={alt} 
       className={className} 
       onError={handleError}
