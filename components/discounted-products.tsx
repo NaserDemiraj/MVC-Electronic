@@ -30,7 +30,7 @@ export default function DiscountedProducts({
     },
   )
 
-  // Mock discounted products
+  // Mock discounted products - using local images
   const discountedProducts = [
     {
       id: "1",
@@ -39,7 +39,7 @@ export default function DiscountedProducts({
       salePrice: 39.99,
       isOnSale: true,
       rating: 4.8,
-      image: "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=300&h=300&fit=crop",
+      image: "/Arduino Starter Kit.webp",
       category: "Kits",
       description: "Complete kit with Arduino Uno, breadboard, components, and detailed tutorials for beginners",
     },
@@ -50,7 +50,7 @@ export default function DiscountedProducts({
       salePrice: 49.99,
       isOnSale: true,
       rating: 4.9,
-      image: "https://images.unsplash.com/photo-1601049676869-9bf269d8dfc8?w=300&h=300&fit=crop",
+      image: "/Raspberry Pi 4 - 4GB.jpg",
       category: "Microcontrollers",
       description: "The latest Raspberry Pi with 4GB RAM, perfect for desktop computing and IoT projects",
     },
@@ -61,7 +61,7 @@ export default function DiscountedProducts({
       salePrice: 64.99,
       isOnSale: true,
       rating: 4.7,
-      image: "https://images.unsplash.com/photo-1597713420028-a8ccd9a55eaa?w=300&h=300&fit=crop",
+      image: "/Soldering Station Kit - Digital.webp",
       category: "Tools",
       description:
         "Professional digital soldering station with adjustable temperature control, multiple tips, and accessories for precision work.",
@@ -73,7 +73,7 @@ export default function DiscountedProducts({
       salePrice: 9.99,
       isOnSale: true,
       rating: 4.6,
-      image: "https://images.unsplash.com/photo-1555664424-778a1e5e1b48?w=300&h=300&fit=crop",
+      image: "/Ultrasonic Distance Sensor Pack.jpg",
       category: "Sensors",
       description:
         "Pack of 5 HC-SR04 ultrasonic distance sensors for measuring distances in your robotics and automation projects.",

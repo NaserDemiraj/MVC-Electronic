@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { FallbackImage } from "@/components/ui/fallback-image"
 
 interface ProductCarouselProps {
   images: string[]
@@ -56,9 +57,10 @@ export default function ProductCarousel({ images, alt }: ProductCarouselProps) {
       >
         {images.map((image, index) => (
           <div key={index} className="min-w-full h-full flex-shrink-0">
-            <img
+            <FallbackImage
               src={image || "/placeholder.svg"}
               alt={`${alt} - view ${index + 1}`}
+              fallbackSrc="/placeholder.svg"
               className="w-full h-full object-cover"
             />
           </div>

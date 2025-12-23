@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
 import ProductCard from "@/components/product-card"
 
-// Mock product data for search results
+// Mock product data for search results - using local images
 const mockProducts = [
   {
     id: "1",
     name: "Arduino Uno R3 Microcontroller",
     price: 24.99,
     rating: 4.8,
-    image: "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=300&h=300&fit=crop",
+    image: "/Arduino Uno R3 Microcontroller.jpg",
     category: "Microcontrollers",
     description:
       "The Arduino Uno R3 is the most used and documented board in the Arduino family, perfect for beginners and experienced makers.",
@@ -23,7 +23,7 @@ const mockProducts = [
     name: "Raspberry Pi 4 Model B - 4GB",
     price: 45.99,
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1601049676869-9bf269d8dfc8?w=300&h=300&fit=crop",
+    image: "/Raspberry Pi 4 Model B - 4GB.png",
     category: "Microcontrollers",
     description:
       "The Raspberry Pi 4 Model B with 4GB RAM offers desktop-like performance for a wide range of applications and projects.",
@@ -33,7 +33,7 @@ const mockProducts = [
     name: "Soldering Station Kit - Digital",
     price: 79.99,
     rating: 4.7,
-    image: "https://images.unsplash.com/photo-1597713420028-a8ccd9a55eaa?w=300&h=300&fit=crop",
+    image: "/Soldering Station Kit - Digital.webp",
     category: "Tools",
     description:
       "Professional digital soldering station with adjustable temperature control, multiple tips, and accessories for precision work.",
@@ -43,7 +43,7 @@ const mockProducts = [
     name: "Ultrasonic Distance Sensor Pack",
     price: 12.99,
     rating: 4.6,
-    image: "https://images.unsplash.com/photo-1555664424-778a1e5e1b48?w=300&h=300&fit=crop",
+    image: "/Ultrasonic Distance Sensor Pack.jpg",
     category: "Sensors",
     description:
       "Pack of 5 HC-SR04 ultrasonic distance sensors for measuring distances in your robotics and automation projects.",
@@ -53,7 +53,7 @@ const mockProducts = [
     name: "ESP32 Development Board",
     price: 8.99,
     rating: 4.5,
-    image: "https://images.unsplash.com/photo-1563126442-a5ef6e395f6d?w=300&h=300&fit=crop",
+    image: "/ESP32 Development Board.png",
     category: "Microcontrollers",
     description: "ESP32 development board with WiFi and Bluetooth capabilities, perfect for IoT projects.",
   },

@@ -10,84 +10,62 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronRight, SlidersHorizontal } from "lucide-react"
 import ProductCard from "@/components/product-card"
 
-// Mock products data - in a real app, you would fetch this based on the category
+// Mock products data - using local images only
 const allProducts = [
   {
     id: "1",
-    name: "Ultra Slim Laptop Pro",
+    name: "Dell XPS 15",
     price: 1299.99,
     rating: 4.8,
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop",
+    image: "/Dell XPS 15.webp",
     category: "Laptops",
-    brand: "Apple",
+    brand: "Dell",
     processor: "Intel Core i7",
     ram: "16GB",
   },
   {
     id: "2",
-    name: "Business Laptop Elite",
-    price: 1499.99,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=500&fit=crop",
-    category: "Laptops",
-    brand: "Dell",
-    processor: "Intel Core i5",
-    ram: "8GB",
+    name: "Arduino Uno R3 Microcontroller",
+    price: 24.99,
+    rating: 4.8,
+    image: "/Arduino Uno R3 Microcontroller.jpg",
+    category: "Microcontrollers",
+    brand: "Arduino",
+    processor: "ATmega328P",
+    ram: "2KB",
   },
   {
     id: "3",
-    name: "Gaming Laptop Extreme",
-    price: 1899.99,
+    name: "Raspberry Pi 4 Model B - 4GB",
+    price: 45.99,
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1603642892514-e4fe3ce80a59?w=500&h=500&fit=crop",
-    category: "Laptops",
-    brand: "Asus",
-    processor: "AMD Ryzen 7",
-    ram: "32GB",
+    image: "/Raspberry Pi 4 Model B - 4GB.png",
+    category: "Microcontrollers",
+    brand: "Raspberry Pi",
+    processor: "Broadcom BCM2711",
+    ram: "4GB",
   },
   {
     id: "4",
-    name: "Student Laptop Basic",
-    price: 699.99,
+    name: "ESP32 Development Board",
+    price: 8.99,
     rating: 4.5,
-    image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=500&h=500&fit=crop",
-    category: "Laptops",
-    brand: "HP",
-    processor: "Intel Core i5",
-    ram: "8GB",
-  },
-  {
-    id: "5",
-    name: "Convertible 2-in-1 Laptop",
-    price: 999.99,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1586657969055-d3babe78e487?w=500&h=500&fit=crop",
-    category: "Laptops",
-    brand: "Lenovo",
-    processor: "Intel Core i7",
-    ram: "16GB",
-  },
-  {
-    id: "6",
-    name: "Ultrabook Pro",
-    price: 1199.99,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?w=500&h=500&fit=crop",
-    category: "Laptops",
-    brand: "Apple",
-    processor: "Intel Core i7",
-    ram: "16GB",
+    image: "/ESP32 Development Board.png",
+    category: "Microcontrollers",
+    brand: "Espressif",
+    processor: "Tensilica Xtensa LX6",
+    ram: "520KB",
   },
 ]
 
-// Microcontroller products
+// Microcontroller products - using local images
 const microcontrollerProducts = [
   {
     id: "mc1",
-    name: "Arduino Uno R3",
+    name: "Arduino Uno R3 Microcontroller",
     price: 24.99,
     rating: 4.8,
-    image: "https://images.unsplash.com/photo-1589595997281-5f9e3001b942?w=500&h=500&fit=crop",
+    image: "/Arduino Uno R3 Microcontroller.jpg",
     category: "Microcontrollers",
     brand: "Arduino",
     processor: "ATmega328P",
@@ -98,7 +76,7 @@ const microcontrollerProducts = [
     name: "Raspberry Pi 4 - 4GB",
     price: 59.99,
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
+    image: "/Raspberry Pi 4 - 4GB.jpg",
     category: "Microcontrollers",
     brand: "Raspberry Pi",
     processor: "Broadcom BCM2711",
@@ -109,7 +87,7 @@ const microcontrollerProducts = [
     name: "ESP32 Development Board",
     price: 8.99,
     rating: 4.7,
-    image: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&h=500&fit=crop",
+    image: "/ESP32 Development Board.png",
     category: "Microcontrollers",
     brand: "Espressif",
     processor: "Tensilica Xtensa LX6",
@@ -117,74 +95,62 @@ const microcontrollerProducts = [
   },
   {
     id: "mc4",
-    name: "Arduino Nano",
-    price: 12.99,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1581092160559-112debad63ca?w=500&h=500&fit=crop",
-    category: "Microcontrollers",
-    brand: "Arduino",
-    processor: "ATmega328P",
-    ram: "2KB",
-  },
-  {
-    id: "mc5",
-    name: "Raspberry Pi Pico",
-    price: 4.99,
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1606062423079-7ca13cdc7f5a?w=500&h=500&fit=crop",
+    name: "Raspberry Pi 4 Model B",
+    price: 45.99,
+    rating: 4.9,
+    image: "/Raspberry Pi 4 Model B - 4GB.png",
     category: "Microcontrollers",
     brand: "Raspberry Pi",
-    processor: "RP2040",
-    ram: "264KB",
-  },
-  {
-    id: "mc6",
-    name: "ESP8266 NodeMCU",
-    price: 6.99,
-    rating: 4.4,
-    image: "https://images.unsplash.com/photo-1581092160562-40038f56c40d?w=500&h=500&fit=crop",
-    category: "Microcontrollers",
-    brand: "Espressif",
-    processor: "Tensilica L106",
-    ram: "160KB",
+    processor: "Broadcom BCM2711",
+    ram: "4GB",
   },
 ]
 
-// Sensor products
+// Sensor products - using local images
 const sensorProducts = [
   {
     id: "s1",
     name: "DHT22 Temperature & Humidity Sensor",
     price: 4.99,
     rating: 4.6,
-    image: "https://images.unsplash.com/photo-1581092157544-8ac2b57ba21d?w=500&h=500&fit=crop",
+    image: "/DHT22 Temperature & Humidity Sensor.webp",
     category: "Sensors",
     brand: "Generic",
     type: "Temperature",
   },
   {
     id: "s2",
-    name: "HC-SR04 Ultrasonic Distance Sensor",
-    price: 2.99,
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
+    name: "Ultrasonic Distance Sensor Pack",
+    price: 12.99,
+    rating: 4.6,
+    image: "/Ultrasonic Distance Sensor Pack.jpg",
     category: "Sensors",
     brand: "Generic",
     type: "Distance",
   },
   {
     id: "s3",
-    name: "PIR Motion Sensor",
-    price: 3.99,
-    rating: 4.4,
-    image: "https://images.unsplash.com/photo-1581092916550-e323abad3069?w=500&h=500&fit=crop",
+    name: "Wireless IoT Sensor Kit",
+    price: 49.99,
+    rating: 4.7,
+    image: "/Wireless IoT Sensor Kit.jpg",
     category: "Sensors",
     brand: "Generic",
-    type: "Motion",
+    type: "IoT",
+  },
+  {
+    id: "s4",
+    name: "Electronics Learning Lab",
+    price: 89.99,
+    rating: 4.8,
+    image: "/Electronics Learning Lab.webp",
+    category: "Sensors",
+    brand: "Generic",
+    type: "Learning",
   },
 ]
 
-// Component products
+// Component products - using local images (reduced to products with real images)
 const componentProducts = [
   {
     id: "c1",
@@ -218,93 +184,33 @@ const componentProducts = [
   },
   {
     id: "c4",
-    name: "LED Light Kit",
-    price: 5.99,
-    rating: 4.3,
-    image: "/Breadboard Kit.jpg",
+    name: "Digital Multimeter",
+    price: 19.99,
+    rating: 4.6,
+    image: "/Digital Multimeter.webp",
     category: "Components",
     brand: "Generic",
-    type: "LED",
+    type: "Tool",
   },
   {
     id: "c5",
-    name: "Relay Module",
-    price: 3.99,
-    rating: 4.5,
-    image: "/OLED Display Module.webp",
+    name: "Beginner Electronics Kit",
+    price: 34.99,
+    rating: 4.7,
+    image: "/Beginner Electronics Kit.webp",
     category: "Components",
     brand: "Generic",
-    type: "Relay",
+    type: "Kit",
   },
   {
     id: "c6",
-    name: "Capacitor Assortment",
-    price: 6.99,
-    rating: 4.4,
-    image: "/Servo Motor Pack.jpg",
+    name: "Anker 65W GaN Charger",
+    price: 39.99,
+    rating: 4.8,
+    image: "/Anker 65W GaN Charger.webp",
     category: "Components",
-    brand: "Generic",
-    type: "Capacitor",
-  },
-  {
-    id: "c7",
-    name: "Resistor Assortment",
-    price: 4.99,
-    rating: 4.3,
-    image: "/Breadboard Kit.jpg",
-    category: "Components",
-    brand: "Generic",
-    type: "Resistor",
-  },
-  {
-    id: "c8",
-    name: "Diode Assortment",
-    price: 5.99,
-    rating: 4.2,
-    image: "/OLED Display Module.webp",
-    category: "Components",
-    brand: "Generic",
-    type: "Diode",
-  },
-  {
-    id: "c9",
-    name: "Transistor Assortment",
-    price: 7.99,
-    rating: 4.3,
-    image: "/Servo Motor Pack.jpg",
-    category: "Components",
-    brand: "Generic",
-    type: "Transistor",
-  },
-  {
-    id: "c10",
-    name: "Inductor Assortment",
-    price: 6.49,
-    rating: 4.2,
-    image: "/Breadboard Kit.jpg",
-    category: "Components",
-    brand: "Generic",
-    type: "Inductor",
-  },
-  {
-    id: "c11",
-    name: "Crystal Oscillator Pack",
-    price: 8.99,
-    rating: 4.4,
-    image: "/OLED Display Module.webp",
-    category: "Components",
-    brand: "Generic",
-    type: "Oscillator",
-  },
-  {
-    id: "c12",
-    name: "USB Connector Pack",
-    price: 3.49,
-    rating: 4.5,
-    image: "/Servo Motor Pack.jpg",
-    category: "Components",
-    brand: "Generic",
-    type: "Connector",
+    brand: "Anker",
+    type: "Charger",
   },
 ]
 
@@ -325,6 +231,15 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
   // Get the appropriate products based on category
   useEffect(() => {
+    // Helper function to check if an image is a valid local image
+    const hasValidLocalImage = (product: any) => {
+      if (!product.image) return false
+      // Check if it's a local image (starts with /) and not an external URL
+      const isLocalImage = product.image.startsWith('/') && !product.image.startsWith('http')
+      // Also accept products from our hardcoded data which always have valid images
+      return isLocalImage
+    }
+
     const fetchCategoryProducts = async () => {
       try {
         let categoryName
@@ -345,8 +260,13 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         const response = await fetch(`/api/category-products?category=${categoryName}`)
         const products = await response.json()
 
-        // Fallback to hardcoded data if fetch fails
-        if (!products || products.length === 0) {
+        // Filter products to only show those with valid local images
+        const productsWithImages = Array.isArray(products) 
+          ? products.filter(hasValidLocalImage)
+          : []
+
+        // Fallback to hardcoded data if fetch fails or not enough products with images
+        if (!productsWithImages || productsWithImages.length < 4) {
           let fallbackProducts
           switch (params.slug.toLowerCase()) {
             case "microcontrollers":
@@ -364,8 +284,9 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           setOriginalProducts(fallbackProducts)
           setFilteredProducts(fallbackProducts)
         } else {
-          setOriginalProducts(products)
-          setFilteredProducts(products)
+          // Use products with valid images from API
+          setOriginalProducts(productsWithImages)
+          setFilteredProducts(productsWithImages)
         }
       } catch (error) {
         console.error("Error fetching category products:", error)

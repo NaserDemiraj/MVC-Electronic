@@ -8,6 +8,7 @@ import { Star, ShoppingCart, Heart, Minus, Plus } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useWishlist } from "@/context/wishlist-context"
 import { useToast } from "@/components/ui/use-toast"
+import { FallbackImage } from "@/components/ui/fallback-image"
 import Link from "next/link"
 
 interface QuickViewModalProps {
@@ -103,9 +104,10 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
         <div className="grid md:grid-cols-2 gap-0">
           <div className="bg-gray-50 p-6 flex items-center justify-center">
-            <img
+            <FallbackImage
               src={product.image || "/placeholder.svg"}
               alt={product.name}
+              fallbackSrc="/placeholder.svg"
               className="max-h-[300px] object-contain"
             />
           </div>

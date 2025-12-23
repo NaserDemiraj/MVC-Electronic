@@ -11,6 +11,7 @@ import { useWishlist } from "@/context/wishlist-context"
 import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { getProductBySlug } from "@/app/actions/product-actions"
+import { findProductBySlug } from "@/lib/product-data"
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
   const router = useRouter()
@@ -22,36 +23,79 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     async function fetchProduct() {
       try {
         setLoading(true)
+        let foundProduct = false
+        
         // Try to fetch from database first
-        const response = await fetch(`/api/products?slug=${params.slug}`)
-        if (response.ok) {
-          const data = await response.json()
-          if (data && data.length > 0) {
-            const productData = data[0]
-            const price = parseFloat(productData.price) || 0
-            const discountPrice = productData.discount_price ? parseFloat(productData.discount_price) : null
-            
+        try {
+          const response = await fetch(`/api/products?slug=${params.slug}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data && data.length > 0) {
+              const productData = data[0]
+              const price = parseFloat(productData.price) || 0
+              const discountPrice = productData.discount_price ? parseFloat(productData.discount_price) : null
+              
+              setProduct({
+                id: productData.id.toString(),
+                name: productData.name,
+                slug: productData.slug,
+                price: discountPrice || price,
+                originalPrice: price,
+                salePrice: discountPrice,
+                isOnSale: !!discountPrice && discountPrice < price,
+                rating: productData.rating || 4.5,
+                description: productData.description,
+                images: [
+                  productData.image || "/placeholder.svg",
+                ],
+                inStock: productData.in_stock,
+                reviews: productData.reviews_count || 0,
+                stock_quantity: productData.stock_quantity || 0,
+                specs: [],
+                components: [],
+                features: [],
+                specifications: {},
+              })
+              foundProduct = true
+            }
+          }
+        } catch (dbError) {
+          console.log("Database fetch failed, trying local data...")
+        }
+        
+        // Fallback to local mock data if not found in database
+        if (!foundProduct) {
+          const mockProduct = findProductBySlug(params.slug)
+          if (mockProduct) {
             setProduct({
-              id: productData.id.toString(),
-              name: productData.name,
-              slug: productData.slug,
-              price: discountPrice || price,
-              originalPrice: price,
-              salePrice: discountPrice,
-              isOnSale: !!discountPrice && discountPrice < price,
-              rating: productData.rating || 4.5,
-              description: productData.description,
-              images: [
-                productData.image || "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop",
-              ],
-              inStock: productData.in_stock,
-              reviews: productData.reviews_count || 0,
-              stock_quantity: productData.stock_quantity || 0,
+              id: mockProduct.id,
+              name: mockProduct.name,
+              slug: mockProduct.slug,
+              price: mockProduct.salePrice || mockProduct.price,
+              originalPrice: mockProduct.originalPrice || mockProduct.price,
+              salePrice: mockProduct.salePrice,
+              isOnSale: mockProduct.isOnSale || (mockProduct.salePrice && mockProduct.salePrice < mockProduct.price),
+              rating: mockProduct.rating,
+              description: mockProduct.description,
+              images: mockProduct.images,
+              inStock: mockProduct.inStock,
+              reviews: Math.floor(mockProduct.rating * 20),
+              stock_quantity: mockProduct.stockQuantity,
               specs: [],
               components: [],
+              features: mockProduct.features || [],
+              specifications: mockProduct.specifications || {},
+              category: mockProduct.category,
+              brand: mockProduct.brand,
             })
+            foundProduct = true
           }
         }
+        
+        if (!foundProduct) {
+          setError("Product not found")
+        }
+        
         setLoading(false)
       } catch (err) {
         console.error("Error fetching product:", err)
@@ -156,8 +200,8 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             Home
           </Link>
           <ChevronRight className="h-4 w-4 text-gray-500" />
-          <Link href="/category/kits" className="text-gray-500 hover:text-gray-700">
-            Kits
+          <Link href={`/category/${(product.category || 'kits').toLowerCase()}`} className="text-gray-500 hover:text-gray-700">
+            {product.category || 'Kits'}
           </Link>
           <ChevronRight className="h-4 w-4 text-gray-500" />
           <span className="text-gray-900 font-medium">{product.name}</span>
@@ -317,8 +361,15 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <div>
                 <h3 className="text-lg font-medium mb-4">Technical Specifications</h3>
                 <div className="space-y-2">
-                  {product.specs && product.specs.length > 0 ? (
-                    product.specs.map((spec, index) => (
+                  {product.specifications && Object.keys(product.specifications).length > 0 ? (
+                    Object.entries(product.specifications).map(([key, value], index) => (
+                      <div key={index} className="grid grid-cols-2 py-2 border-b last:border-0">
+                        <span className="text-gray-500">{key}</span>
+                        <span>{value as string}</span>
+                      </div>
+                    ))
+                  ) : product.specs && product.specs.length > 0 ? (
+                    product.specs.map((spec: any, index: number) => (
                       <div key={index} className="grid grid-cols-2 py-2 border-b last:border-0">
                         <span className="text-gray-500">{spec.name}</span>
                         <span>{spec.value}</span>
@@ -330,27 +381,19 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-medium mb-4">Project Examples</h3>
-                <p className="text-gray-700 mb-4">
-                  This starter kit includes a project book with 15 different projects, ranging from simple LED blinking
-                  to more complex sensor-based applications. Perfect for beginners and intermediate users alike.
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border rounded-lg overflow-hidden">
-                    <img
-                      src="https://images.unsplash.com/photo-1555664424-778a1e5e1b48?w=200&h=150&fit=crop"
-                      alt="LED Project"
-                      className="w-full h-auto"
-                    />
-                  </div>
-                  <div className="border rounded-lg overflow-hidden">
-                    <img
-                      src="https://images.unsplash.com/photo-1557438159-51eec7a6c9e8?w=200&h=150&fit=crop"
-                      alt="Sensor Project"
-                      className="w-full h-auto"
-                    />
-                  </div>
-                </div>
+                <h3 className="text-lg font-medium mb-4">Features</h3>
+                {product.features && product.features.length > 0 ? (
+                  <ul className="list-disc pl-5 space-y-2">
+                    {product.features.map((feature: string, index: number) => (
+                      <li key={index} className="text-gray-700">{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-700 mb-4">
+                    This product includes all the features you need for your electronics projects. 
+                    Perfect for beginners and intermediate users alike.
+                  </p>
+                )}
               </div>
             </div>
           </TabsContent>

@@ -366,18 +366,18 @@ export default function Home() {
 
       {/* Product Banner */}
       <ProductBanner
-        title="Raspberry Pi 5"
-        subtitle="New Release - Limited Stock"
-        description="The most powerful Raspberry Pi yet. With a quad-core processor, up to 8GB RAM, and improved I/O performance, it's perfect for desktop computing, IoT projects, and more."
-        image="https://images.unsplash.com/photo-1601049676869-9bf269d8dfc8?w=800&h=600&fit=crop"
-        badge="New Arrival"
+        title="Raspberry Pi 4"
+        subtitle="Best Seller - In Stock"
+        description="The powerful Raspberry Pi 4 with 4GB RAM. With a quad-core processor and improved I/O performance, it's perfect for desktop computing, IoT projects, and more."
+        image="/Raspberry Pi 4 Model B - 4GB.png"
+        badge="Popular"
         buttonText="Shop Now"
-        buttonLink="/product/raspberry-pi-5"
+        buttonLink="/product/raspberry-pi-4-model-b-4gb"
         product={{
-          id: "raspberry-pi-5",
-          name: "Raspberry Pi 5 - 8GB",
-          price: 79.99,
-          image: "https://images.unsplash.com/photo-1601049676869-9bf269d8dfc8?w=300&h=300&fit=crop",
+          id: "2",
+          name: "Raspberry Pi 4 Model B - 4GB",
+          price: 45.99,
+          image: "/Raspberry Pi 4 Model B - 4GB.png",
         }}
       />
 
@@ -405,40 +405,40 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <ProductCard
-              id="new-1"
-              name="ESP32-CAM WiFi Module"
-              price={12.99}
-              rating={4.7}
-              image="https://images.unsplash.com/photo-1563126442-a5ef6e395f6d?w=300&h=300&fit=crop"
+              id="5"
+              name="ESP32 Development Board"
+              price={8.99}
+              rating={4.5}
+              image="/ESP32 Development Board.png"
               category="Microcontrollers"
-              description="ESP32-CAM WiFi + Bluetooth module with integrated camera, perfect for IoT projects requiring visual capabilities."
+              description="ESP32 development board with WiFi and Bluetooth capabilities, perfect for IoT projects."
             />
             <ProductCard
-              id="new-2"
+              id="9"
               name="OLED Display Module"
               price={8.99}
               rating={4.5}
-              image="https://images.unsplash.com/photo-1555664424-778a1e5e1b48?w=300&h=300&fit=crop"
+              image="/OLED Display Module.webp"
               category="Components"
-              description="0.96-inch OLED display module with 128x64 resolution, I2C interface, and vibrant blue text display."
+              description="0.96-inch OLED display module with 128x64 resolution and I2C interface."
             />
             <ProductCard
-              id="new-3"
-              name="Digital Multimeter Pro"
-              price={34.99}
-              rating={4.8}
-              image="https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300&h=300&fit=crop"
+              id="8"
+              name="Digital Multimeter"
+              price={19.99}
+              rating={4.6}
+              image="/Digital Multimeter.webp"
               category="Tools"
-              description="Professional digital multimeter with auto-ranging capability, measuring voltage, current, resistance, and more."
+              description="Digital multimeter for measuring voltage, current, resistance, and more."
             />
             <ProductCard
-              id="new-4"
+              id="11"
               name="Wireless IoT Sensor Kit"
               price={49.99}
-              rating={4.6}
-              image="https://images.unsplash.com/photo-1557438159-51eec7a6c9e8?w=300&h=300&fit=crop"
+              rating={4.7}
+              image="/Wireless IoT Sensor Kit.jpg"
               category="Kits"
-              description="Complete wireless IoT sensor kit with temperature, humidity, motion, and light sensors plus WiFi connectivity."
+              description="Complete wireless IoT sensor kit with temperature, humidity, motion, and light sensors."
             />
           </div>
 
@@ -583,7 +583,7 @@ export default function Home() {
               </div>
               <div className="flex justify-center p-6 pb-0">
                 <img
-                  src="https://images.unsplash.com/photo-1563126442-a5ef6e395f6d?w=200&h=200&fit=crop"
+                  src="/ESP32 Development Board.png"
                   alt="ESP32 Development Board"
                   className="h-[200px] w-auto object-contain transition-transform group-hover:scale-105"
                 />
@@ -603,7 +603,7 @@ export default function Home() {
                       "esp32",
                       "ESP32 Development Board",
                       8.99,
-                      "https://images.unsplash.com/photo-1563126442-a5ef6e395f6d?w=200&h=200&fit=crop",
+                      "/ESP32 Development Board.png",
                     )
                   }
                 >
@@ -617,7 +617,7 @@ export default function Home() {
               </div>
               <div className="flex justify-center p-6 pb-0">
                 <img
-                  src="https://images.unsplash.com/photo-1557438159-51eec7a6c9e8?w=200&h=200&fit=crop"
+                  src="/DHT22 Temperature & Humidity Sensor.webp"
                   alt="Temperature & Humidity Sensor"
                   className="h-[200px] w-auto object-contain transition-transform group-hover:scale-105"
                 />
@@ -637,7 +637,7 @@ export default function Home() {
                       "temp-sensor",
                       "Temperature & Humidity Sensor",
                       4.99,
-                      "https://images.unsplash.com/photo-1557438159-51eec7a6c9e8?w=200&h=200&fit=crop",
+                      "/DHT22 Temperature & Humidity Sensor.webp",
                     )
                   }
                 >
@@ -651,7 +651,7 @@ export default function Home() {
               </div>
               <div className="flex justify-center p-6 pb-0">
                 <img
-                  src="https://images.unsplash.com/photo-1623949556303-b0d17c371ca0?w=200&h=200&fit=crop"
+                  src="/Beginner Electronics Kit.webp"
                   alt="Beginner Electronics Kit"
                   className="h-[200px] w-auto object-contain transition-transform group-hover:scale-105"
                 />
@@ -671,7 +671,7 @@ export default function Home() {
                       "beginner-kit",
                       "Beginner Electronics Kit",
                       34.99,
-                      "https://images.unsplash.com/photo-1623949556303-b0d17c371ca0?w=200&h=200&fit=crop",
+                      "/Beginner Electronics Kit.webp",
                     )
                   }
                 >

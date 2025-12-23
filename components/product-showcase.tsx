@@ -10,6 +10,7 @@ import { useCart } from "@/context/cart-context"
 import { useWishlist } from "@/context/wishlist-context"
 import { useToast } from "@/hooks/use-toast"
 import QuickViewModal from "./quick-view-modal"
+import { FallbackImage } from "@/components/ui/fallback-image"
 
 // Update the Product interface to include sale price information
 interface Product {
@@ -123,9 +124,10 @@ export default function ProductShowcase({
               )}
 
               <div className="relative h-[200px] w-full mb-6 overflow-hidden rounded-xl">
-                <img
+                <FallbackImage
                   src={product.image || "/placeholder.svg"}
                   alt={product.name}
+                  fallbackSrc="/placeholder.svg"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <Button
