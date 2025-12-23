@@ -92,7 +92,11 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
   }
 
   // Create a URL-friendly slug from the product name
-  const slug = product.name.toLowerCase().replace(/\s+/g, "-")
+  const slug = product.name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters first (except spaces and dashes)
+    .replace(/\s+/g, "-") // Replace spaces with dashes
+    .replace(/-+/g, "-") // Replace multiple consecutive dashes with single dash
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -512,11 +512,11 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       <div className="container py-12 border-t">
         <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div className="border rounded-lg overflow-hidden group relative">
+          <Link href="/product/arduino-starter-kit" className="block border rounded-lg overflow-hidden group relative hover:shadow-lg transition-shadow">
             <div className="aspect-square overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1601049676869-9bf269d8dfc8?w=300&h=300&fit=crop"
-                alt="Related product"
+                src="/Arduino Starter Kit.webp"
+                alt="Arduino Starter Kit"
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
               />
             </div>
@@ -529,15 +529,15 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <span className="sr-only">Add to wishlist</span>
             </Button>
             <div className="p-4">
-              <h3 className="font-medium group-hover:text-primary transition-colors">Raspberry Pi 4 Starter Kit</h3>
-              <div className="mt-1 font-bold">$79.99</div>
+              <h3 className="font-medium group-hover:text-primary transition-colors">Arduino Starter Kit</h3>
+              <div className="mt-1 font-bold">$49.99</div>
             </div>
-          </div>
-          <div className="border rounded-lg overflow-hidden group relative">
+          </Link>
+          <Link href="/product/soldering-station-kit-digital" className="block border rounded-lg overflow-hidden group relative hover:shadow-lg transition-shadow">
             <div className="aspect-square overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1597713420028-a8ccd9a55eaa?w=300&h=300&fit=crop"
-                alt="Related product"
+                src="/Soldering Station Kit - Digital.webp"
+                alt="Soldering Station Kit - Digital"
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
               />
             </div>
@@ -550,15 +550,15 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <span className="sr-only">Add to wishlist</span>
             </Button>
             <div className="p-4">
-              <h3 className="font-medium group-hover:text-primary transition-colors">Soldering Starter Kit</h3>
-              <div className="mt-1 font-bold">$39.99</div>
+              <h3 className="font-medium group-hover:text-primary transition-colors">Soldering Station Kit - Digital</h3>
+              <div className="mt-1 font-bold">$159.99</div>
             </div>
-          </div>
-          <div className="border rounded-lg overflow-hidden group relative">
+          </Link>
+          <Link href="/product/ultrasonic-distance-sensor-pack" className="block border rounded-lg overflow-hidden group relative hover:shadow-lg transition-shadow">
             <div className="aspect-square overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1557438159-51eec7a6c9e8?w=300&h=300&fit=crop"
-                alt="Related product"
+                src="/Ultrasonic Distance Sensor Pack.jpg"
+                alt="Ultrasonic Distance Sensor Pack"
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
               />
             </div>
@@ -571,15 +571,15 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <span className="sr-only">Add to wishlist</span>
             </Button>
             <div className="p-4">
-              <h3 className="font-medium group-hover:text-primary transition-colors">Sensor Variety Pack</h3>
-              <div className="mt-1 font-bold">$24.99</div>
+              <h3 className="font-medium group-hover:text-primary transition-colors">Ultrasonic Distance Sensor Pack</h3>
+              <div className="mt-1 font-bold">$29.99</div>
             </div>
-          </div>
-          <div className="border rounded-lg overflow-hidden group relative">
+          </Link>
+          <Link href="/product/breadboard-kit" className="block border rounded-lg overflow-hidden group relative hover:shadow-lg transition-shadow">
             <div className="aspect-square overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1623949556303-b0d17c371ca0?w=300&h=300&fit=crop"
-                alt="Related product"
+                src="/Breadboard Kit.jpg"
+                alt="Breadboard Kit"
                 className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
               />
             </div>
@@ -592,10 +592,10 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <span className="sr-only">Add to wishlist</span>
             </Button>
             <div className="p-4">
-              <h3 className="font-medium group-hover:text-primary transition-colors">Arduino Projects Book</h3>
+              <h3 className="font-medium group-hover:text-primary transition-colors">Breadboard Kit</h3>
               <div className="mt-1 font-bold">$19.99</div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

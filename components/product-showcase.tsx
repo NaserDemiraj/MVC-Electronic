@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ShoppingCart, Heart, ArrowRight } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useWishlist } from "@/context/wishlist-context"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import QuickViewModal from "./quick-view-modal"
 
 // Update the Product interface to include sale price information

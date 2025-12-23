@@ -184,6 +184,130 @@ const sensorProducts = [
   },
 ]
 
+// Component products
+const componentProducts = [
+  {
+    id: "c1",
+    name: "OLED Display Module",
+    price: 8.99,
+    rating: 4.5,
+    image: "/OLED Display Module.webp",
+    category: "Components",
+    brand: "Generic",
+    type: "Display",
+  },
+  {
+    id: "c2",
+    name: "Servo Motor Pack",
+    price: 14.99,
+    rating: 4.6,
+    image: "/Servo Motor Pack.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Motor",
+  },
+  {
+    id: "c3",
+    name: "Breadboard Kit",
+    price: 9.99,
+    rating: 4.4,
+    image: "/Breadboard Kit.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Breadboard",
+  },
+  {
+    id: "c4",
+    name: "LED Light Kit",
+    price: 5.99,
+    rating: 4.3,
+    image: "/Breadboard Kit.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "LED",
+  },
+  {
+    id: "c5",
+    name: "Relay Module",
+    price: 3.99,
+    rating: 4.5,
+    image: "/OLED Display Module.webp",
+    category: "Components",
+    brand: "Generic",
+    type: "Relay",
+  },
+  {
+    id: "c6",
+    name: "Capacitor Assortment",
+    price: 6.99,
+    rating: 4.4,
+    image: "/Servo Motor Pack.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Capacitor",
+  },
+  {
+    id: "c7",
+    name: "Resistor Assortment",
+    price: 4.99,
+    rating: 4.3,
+    image: "/Breadboard Kit.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Resistor",
+  },
+  {
+    id: "c8",
+    name: "Diode Assortment",
+    price: 5.99,
+    rating: 4.2,
+    image: "/OLED Display Module.webp",
+    category: "Components",
+    brand: "Generic",
+    type: "Diode",
+  },
+  {
+    id: "c9",
+    name: "Transistor Assortment",
+    price: 7.99,
+    rating: 4.3,
+    image: "/Servo Motor Pack.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Transistor",
+  },
+  {
+    id: "c10",
+    name: "Inductor Assortment",
+    price: 6.49,
+    rating: 4.2,
+    image: "/Breadboard Kit.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Inductor",
+  },
+  {
+    id: "c11",
+    name: "Crystal Oscillator Pack",
+    price: 8.99,
+    rating: 4.4,
+    image: "/OLED Display Module.webp",
+    category: "Components",
+    brand: "Generic",
+    type: "Oscillator",
+  },
+  {
+    id: "c12",
+    name: "USB Connector Pack",
+    price: 3.49,
+    rating: 4.5,
+    image: "/Servo Motor Pack.jpg",
+    category: "Components",
+    brand: "Generic",
+    type: "Connector",
+  },
+]
+
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
 
@@ -196,6 +320,8 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([])
   const [originalProducts, setOriginalProducts] = useState<any[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = params.slug.toLowerCase() === "components" ? 6 : 4
 
   // Get the appropriate products based on category
   useEffect(() => {
@@ -208,6 +334,9 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             break
           case "sensors":
             categoryName = "Sensors"
+            break
+          case "components":
+            categoryName = "Components"
             break
           default:
             categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
@@ -225,6 +354,9 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
               break
             case "sensors":
               fallbackProducts = sensorProducts
+              break
+            case "components":
+              fallbackProducts = componentProducts
               break
             default:
               fallbackProducts = allProducts
@@ -245,6 +377,9 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             break
           case "sensors":
             fallbackProducts = sensorProducts
+            break
+          case "components":
+            fallbackProducts = componentProducts
             break
           default:
             fallbackProducts = allProducts
@@ -353,6 +488,18 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   const getUniqueRam = () => {
     return [...new Set(originalProducts.map((product) => product.ram).filter(Boolean))]
   }
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filteredProducts])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -515,19 +662,59 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             </div>
 
             {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    rating={product.rating}
-                    image={product.image}
-                    category={product.category}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {paginatedProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      rating={product.rating}
+                      image={product.image}
+                      category={product.category}
+                    />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-12">
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronRight className="h-4 w-4 rotate-180" />
+                        <span className="sr-only">Previous page</span>
+                      </Button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 w-8"
+                          onClick={() => setCurrentPage(pageNum)}
+                        >
+                          {pageNum}
+                        </Button>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                        <span className="sr-only">Next page</span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-12">
                 <p className="text-gray-500">No products match your filters. Try adjusting your criteria.</p>
@@ -536,28 +723,6 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                 </Button>
               </div>
             )}
-
-            <div className="flex justify-center mt-12">
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <ChevronRight className="h-4 w-4 rotate-180" />
-                  <span className="sr-only">Previous page</span>
-                </Button>
-                <Button variant="outline" size="sm" className="h-8 w-8">
-                  1
-                </Button>
-                <Button variant="outline" size="sm" className="h-8 w-8">
-                  2
-                </Button>
-                <Button variant="outline" size="sm" className="h-8 w-8">
-                  3
-                </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <ChevronRight className="h-4 w-4" />
-                  <span className="sr-only">Next page</span>
-                </Button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
