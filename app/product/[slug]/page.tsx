@@ -8,59 +8,76 @@ import ProductCarousel from "@/components/product-carousel"
 import { useCart } from "@/context/cart-context"
 import { useWishlist } from "@/context/wishlist-context"
 import { useToast } from "@/components/ui/use-toast"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { getProductBySlug } from "@/app/actions/product-actions"
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
-  // In a real app, you would fetch product data based on the slug
-  const product = {
-    id: "1",
-    name: "Arduino Starter Kit",
-    slug: params.slug,
-    price: 49.99,
-    originalPrice: 69.99,
-    salePrice: 39.99,
-    isOnSale: true,
-    rating: 4.8,
-    description:
-      "The perfect way to get started with electronics and coding. This kit includes an Arduino Uno board and a selection of components for creating interactive projects.",
-    category: "Kits",
-    images: [
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop&q=60",
-      "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop&q=40",
-    ],
-    specs: [
-      { name: "Board", value: "Arduino Uno R3" },
-      { name: "Microcontroller", value: "ATmega328P" },
-      { name: "Operating Voltage", value: "5V" },
-      { name: "Input Voltage", value: "7-12V recommended" },
-      { name: "Digital I/O Pins", value: "14 (6 provide PWM output)" },
-      { name: "Analog Input Pins", value: "6" },
-      { name: "DC Current per I/O Pin", value: "20 mA" },
-      { name: "Flash Memory", value: "32 KB" },
-    ],
-    components: [
-      "Arduino Uno R3 board",
-      "USB cable",
-      "Breadboard",
-      "Jumper wires",
-      "LEDs (various colors)",
-      "Resistors",
-      "Capacitors",
-      "Photoresistor",
-      "Temperature sensor",
-      "Servo motor",
-      "Project book with 15 projects",
-    ],
-    inStock: true,
-    reviews: 128,
-  }
+  const [product, setProduct] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        setLoading(true)
+        // Try to fetch from database first
+        const response = await fetch(`/api/products?slug=${params.slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data && data.length > 0) {
+            setProduct({
+              id: data[0].id.toString(),
+              name: data[0].name,
+              slug: data[0].slug,
+              price: data[0].discount_price || data[0].price,
+              originalPrice: data[0].price,
+              salePrice: data[0].discount_price,
+              isOnSale: !!data[0].discount_price,
+              rating: data[0].rating,
+              description: data[0].description,
+              images: [
+                "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop",
+              ],
+              inStock: data[0].in_stock,
+              reviews: data[0].reviews_count,
+              stock_quantity: data[0].stock_quantity,
+            })
+          }
+        }
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching product:", err)
+        setError("Could not load product")
+        setLoading(false)
+      }
+    }
+
+    fetchProduct()
+  }, [params.slug])
 
   const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist()
   const { toast } = useToast()
   const [justAddedToCart, setJustAddedToCart] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading product...</p>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-red-500 mb-4">{error || "Product not found"}</p>
+        <Link href="/" className="text-blue-600 hover:underline">
+          Return to home
+        </Link>
+      </div>
+    )
+  }
 
   const inWishlist = isInWishlist(product.id)
 
