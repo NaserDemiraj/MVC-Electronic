@@ -1,17 +1,19 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronRight, Star, ShoppingCart, Heart, Share2, Truck, ShieldCheck, RotateCcw } from "lucide-react"
 import ProductCarousel from "@/components/product-carousel"
 import { useCart } from "@/context/cart-context"
 import { useWishlist } from "@/context/wishlist-context"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { useState, useEffect } from "react"
 import { getProductBySlug } from "@/app/actions/product-actions"
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
+  const router = useRouter()
   const [product, setProduct] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -25,22 +27,28 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         if (response.ok) {
           const data = await response.json()
           if (data && data.length > 0) {
+            const productData = data[0]
+            const price = parseFloat(productData.price) || 0
+            const discountPrice = productData.discount_price ? parseFloat(productData.discount_price) : null
+            
             setProduct({
-              id: data[0].id.toString(),
-              name: data[0].name,
-              slug: data[0].slug,
-              price: data[0].discount_price || data[0].price,
-              originalPrice: data[0].price,
-              salePrice: data[0].discount_price,
-              isOnSale: !!data[0].discount_price,
-              rating: data[0].rating,
-              description: data[0].description,
+              id: productData.id.toString(),
+              name: productData.name,
+              slug: productData.slug,
+              price: discountPrice || price,
+              originalPrice: price,
+              salePrice: discountPrice,
+              isOnSale: !!discountPrice && discountPrice < price,
+              rating: productData.rating || 4.5,
+              description: productData.description,
               images: [
                 "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=600&h=600&fit=crop",
               ],
-              inStock: data[0].in_stock,
-              reviews: data[0].reviews_count,
-              stock_quantity: data[0].stock_quantity,
+              inStock: productData.in_stock,
+              reviews: productData.reviews_count || 0,
+              stock_quantity: productData.stock_quantity || 0,
+              specs: [],
+              components: [],
             })
           }
         }
@@ -122,6 +130,23 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     }
   }
 
+  const handleBuyNow = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+    })
+
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+      duration: 2000,
+    })
+
+    router.push("/checkout")
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Breadcrumb */}
@@ -169,22 +194,22 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             </div>
 
             <div className="flex items-baseline gap-2">
-              {product.isOnSale && product.salePrice ? (
+              {product.isOnSale && product.salePrice !== null && product.salePrice !== undefined ? (
                 <>
-                  <span className="text-3xl font-bold text-violet-600">${product.salePrice.toFixed(2)}</span>
-                  <span className="text-lg text-gray-500 line-through">${product.price.toFixed(2)}</span>
+                  <span className="text-3xl font-bold text-violet-600">${Number(product.salePrice).toFixed(2)}</span>
+                  <span className="text-lg text-gray-500 line-through">${Number(product.originalPrice).toFixed(2)}</span>
                   <span className="text-green-600 font-medium">
-                    {Math.round(((product.price - product.salePrice) / product.price) * 100)}% off
+                    {Math.round(((Number(product.originalPrice) - Number(product.salePrice)) / Number(product.originalPrice)) * 100)}% off
                   </span>
                 </>
               ) : (
                 <>
-                  <span className="text-3xl font-bold">${product.price.toFixed(2)}</span>
-                  {product.originalPrice && (
+                  <span className="text-3xl font-bold">${Number(product.price).toFixed(2)}</span>
+                  {product.originalPrice && Number(product.originalPrice) > Number(product.price) && (
                     <>
-                      <span className="text-lg text-gray-500 line-through">${product.originalPrice.toFixed(2)}</span>
+                      <span className="text-lg text-gray-500 line-through">${Number(product.originalPrice).toFixed(2)}</span>
                       <span className="text-green-600 font-medium">
-                        Save ${(product.originalPrice - product.price).toFixed(2)}
+                        Save ${(Number(product.originalPrice) - Number(product.price)).toFixed(2)}
                       </span>
                     </>
                   )}
@@ -217,7 +242,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                   Add to Cart
                 </Button>
               )}
-              <Button variant="outline" size="lg" className="sm:flex-1 rounded-full">
+              <Button variant="outline" size="lg" className="sm:flex-1 rounded-full" onClick={handleBuyNow}>
                 Buy Now
               </Button>
               <Button
@@ -292,12 +317,16 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <div>
                 <h3 className="text-lg font-medium mb-4">Technical Specifications</h3>
                 <div className="space-y-2">
-                  {product.specs.map((spec, index) => (
-                    <div key={index} className="grid grid-cols-2 py-2 border-b last:border-0">
-                      <span className="text-gray-500">{spec.name}</span>
-                      <span>{spec.value}</span>
-                    </div>
-                  ))}
+                  {product.specs && product.specs.length > 0 ? (
+                    product.specs.map((spec, index) => (
+                      <div key={index} className="grid grid-cols-2 py-2 border-b last:border-0">
+                        <span className="text-gray-500">{spec.name}</span>
+                        <span>{spec.value}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No specifications available</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -330,11 +359,15 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               <div>
                 <h3 className="text-lg font-medium mb-4">What's in the Box</h3>
                 <ul className="list-disc pl-5 space-y-2">
-                  {product.components.map((item, index) => (
-                    <li key={index} className="text-gray-700">
-                      {item}
-                    </li>
-                  ))}
+                  {product.components && product.components.length > 0 ? (
+                    product.components.map((item, index) => (
+                      <li key={index} className="text-gray-700">
+                        {item}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">No components information available</li>
+                  )}
                 </ul>
               </div>
               <div>
