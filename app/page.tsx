@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, ArrowRight, ShoppingCart, Heart } from "lucide-react"
+import { Menu, ArrowRight, ShoppingCart, Heart, User, LogIn, LogOut } from "lucide-react"
 import ProductCard from "@/components/product-card"
 import CategoryCard from "@/components/category-card"
 import CartDropdown from "@/components/cart-dropdown"
@@ -14,14 +14,55 @@ import ProductBanner from "@/components/product-banner"
 import Search from "@/components/search"
 import { useCart } from "@/context/cart-context"
 import { useToast } from "@/hooks/use-toast"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import PromotionsBanner from "@/components/promotions-banner"
 import DiscountedProducts from "@/components/discounted-products"
+import Cookies from "js-cookie"
 
 export default function Home() {
   const { addItem } = useCart()
   const { toast } = useToast()
   const [currentPage, setCurrentPage] = useState(1)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [customerName, setCustomerName] = useState("")
+
+  // Check login status on mount
+  useEffect(() => {
+    // Check the non-httpOnly cookie that JavaScript can read
+    const loggedInCookie = Cookies.get("customer_logged_in")
+    const customerData = localStorage.getItem("customer_user")
+    
+    if (loggedInCookie === "true" || customerData) {
+      setIsLoggedIn(true)
+      if (customerData) {
+        try {
+          const parsed = JSON.parse(customerData)
+          setCustomerName(parsed.name || "Customer")
+        } catch {
+          setCustomerName("Customer")
+        }
+      } else {
+        setCustomerName("Customer")
+      }
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+      Cookies.remove("customer_logged_in")
+      Cookies.remove("customer_token")
+      localStorage.removeItem("customer_user")
+      setIsLoggedIn(false)
+      setCustomerName("")
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully.",
+      })
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
+  }
 
   const handleAddToCart = (id: string, name: string, price: number, image: string) => {
     addItem({
@@ -259,11 +300,40 @@ export default function Home() {
                   My Wishlist
                 </Button>
               </Link>
-              <Link href="/login">
-                <Button className="hidden md:flex bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
-                  Sign In
-                </Button>
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-full bg-violet-50 text-violet-600">
+                    <User className="h-4 w-4" />
+                    <span className="text-sm font-medium">{customerName || "Customer"}</span>
+                  </div>
+                  <Button 
+                    onClick={handleLogout}
+                    variant="outline" 
+                    className="hidden md:flex items-center gap-2 rounded-full border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/signup">
+                    <Button 
+                      variant="outline" 
+                      className="hidden md:flex items-center gap-2 rounded-full border-violet-200 text-violet-600 hover:bg-violet-50"
+                    >
+                      <User className="h-4 w-4" />
+                      Sign Up
+                    </Button>
+                  </Link>
+                  <Link href="/customer-login">
+                    <Button className="hidden md:flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
+                      <LogIn className="h-4 w-4" />
+                      Login
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

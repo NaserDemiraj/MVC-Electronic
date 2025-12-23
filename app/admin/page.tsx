@@ -1,44 +1,143 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { LogOut, RefreshCw } from "lucide-react"
+import Cookies from "js-cookie"
+
+interface DashboardStats {
+  totalOrders: number
+  pendingOrders: number
+  totalRevenue: number
+  totalCustomers: number
+  newCustomersThisMonth: number
+  lowStockProducts: number
+}
+
+interface Order {
+  id: number
+  order_number: string
+  customer_name: string
+  created_at: string
+  total: number
+  status: string
+}
+
+interface LowStockProduct {
+  id: number
+  name: string
+  stock_quantity: number
+  threshold: number
+}
 
 export default function AdminDashboard() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("overview")
+  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<DashboardStats>({
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    totalCustomers: 0,
+    newCustomersThisMonth: 0,
+    lowStockProducts: 0
+  })
+  const [recentOrders, setRecentOrders] = useState<Order[]>([])
+  const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([])
+  const [adminUser, setAdminUser] = useState<any>(null)
 
-  // Mock data for dashboard
-  const dashboardData = {
-    totalOrders: 79,
-    pendingOrders: 12,
-    totalRevenue: 8749.95,
-    lowStockProducts: 5,
-    totalCustomers: 245,
-    newCustomers: 18,
+  useEffect(() => {
+    // Get admin user from localStorage
+    const userStr = localStorage.getItem("admin_user")
+    if (userStr) {
+      setAdminUser(JSON.parse(userStr))
+    }
+    
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/admin/stats")
+      const data = await response.json()
+      
+      if (data.success) {
+        setStats(data.stats)
+        setRecentOrders(data.recentOrders || [])
+        setLowStockProducts(data.lowStockProducts || [])
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // Mock data for recent orders
-  const recentOrders = [
-    { id: "ORD-1234", customer: "John Doe", date: "2023-04-15", total: 249.99, status: "Delivered" },
-    { id: "ORD-1235", customer: "Jane Smith", date: "2023-04-16", total: 129.95, status: "Processing" },
-    { id: "ORD-1236", customer: "Robert Johnson", date: "2023-04-17", total: 349.97, status: "Shipped" },
-    { id: "ORD-1237", customer: "Emily Davis", date: "2023-04-18", total: 59.98, status: "Pending" },
-  ]
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" })
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
+    
+    // Clear local storage and cookies
+    localStorage.removeItem("auth_token")
+    localStorage.removeItem("admin_user")
+    Cookies.remove("auth_token")
+    
+    router.push("/login")
+  }
 
-  // Mock data for low stock products
-  const lowStockProducts = [
-    { id: 1, name: "Raspberry Pi 4", stock: 5, threshold: 10 },
-    { id: 2, name: "Oscilloscope", stock: 3, threshold: 5 },
-    { id: 3, name: "3D Printer", stock: 2, threshold: 5 },
-    { id: 4, name: "Arduino Mega", stock: 4, threshold: 10 },
-    { id: 5, name: "Soldering Iron", stock: 6, threshold: 10 },
-  ]
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return 'bg-green-100 text-green-800'
+      case 'shipped':
+        return 'bg-blue-100 text-blue-800'
+      case 'processing':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'cancelled':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          {adminUser && (
+            <p className="text-sm text-gray-500">
+              Welcome, {adminUser.name} ({adminUser.role})
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchDashboardData} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button variant="destructive" size="sm" onClick={handleLogout}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card>
@@ -47,7 +146,8 @@ export default function AdminDashboard() {
             <CardDescription>Last 30 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{dashboardData.totalOrders}</p>
+            <p className="text-3xl font-bold">{stats.totalOrders}</p>
+            <p className="text-sm text-yellow-600">{stats.pendingOrders} pending</p>
           </CardContent>
           <CardFooter>
             <Button variant="link" className="p-0" asChild>
@@ -62,7 +162,7 @@ export default function AdminDashboard() {
             <CardDescription>Last 30 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${dashboardData.totalRevenue.toFixed(2)}</p>
+            <p className="text-3xl font-bold">${stats.totalRevenue.toFixed(2)}</p>
           </CardContent>
           <CardFooter>
             <Button variant="link" className="p-0" asChild>
@@ -77,8 +177,8 @@ export default function AdminDashboard() {
             <CardDescription>All time</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{dashboardData.totalCustomers}</p>
-            <p className="text-sm text-gray-500">+{dashboardData.newCustomers} new this month</p>
+            <p className="text-3xl font-bold">{stats.totalCustomers}</p>
+            <p className="text-sm text-green-600">+{stats.newCustomersThisMonth} new this month</p>
           </CardContent>
           <CardFooter>
             <Button variant="link" className="p-0" asChild>
@@ -134,67 +234,48 @@ export default function AdminDashboard() {
                   <CardDescription>Latest orders from your customers</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="relative w-full overflow-auto">
-                    <table className="w-full caption-bottom text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="h-12 px-4 text-left align-middle font-medium">Order ID</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Customer</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Date</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Total</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentOrders.map((order) => (
-                          <tr key={order.id} className="border-b">
-                            <td className="p-4 align-middle font-medium">{order.id}</td>
-                            <td className="p-4 align-middle">{order.customer}</td>
-                            <td className="p-4 align-middle">{order.date}</td>
-                            <td className="p-4 align-middle">${order.total.toFixed(2)}</td>
-                            <td className="p-4 align-middle">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs ${
-                                  order.status === "Delivered"
-                                    ? "bg-green-100 text-green-800"
-                                    : order.status === "Shipped"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : order.status === "Processing"
-                                        ? "bg-yellow-100 text-yellow-800"
-                                        : "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {order.status}
-                              </span>
-                            </td>
+                  {isLoading ? (
+                    <div className="flex justify-center py-8">
+                      <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+                    </div>
+                  ) : recentOrders.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      No orders yet. Orders will appear here when customers make purchases.
+                    </div>
+                  ) : (
+                    <div className="relative w-full overflow-auto">
+                      <table className="w-full caption-bottom text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="h-12 px-4 text-left align-middle font-medium">Order ID</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Customer</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Date</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Total</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Status</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {recentOrders.map((order) => (
+                            <tr key={order.id} className="border-b">
+                              <td className="p-4 align-middle font-medium">{order.order_number}</td>
+                              <td className="p-4 align-middle">{order.customer_name}</td>
+                              <td className="p-4 align-middle">{formatDate(order.created_at)}</td>
+                              <td className="p-4 align-middle">${Number(order.total).toFixed(2)}</td>
+                              <td className="p-4 align-middle">
+                                <span className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(order.status)}`}>
+                                  {order.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" asChild>
                     <Link href="/admin/orders">View All Orders</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sales Overview</CardTitle>
-                  <CardDescription>Sales performance for the last 30 days</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-80 w-full">
-                    <div className="h-full w-full bg-gray-100 rounded-md flex items-center justify-center">
-                      <p className="text-gray-500">Sales Chart Visualization</p>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" asChild>
-                    <Link href="/admin/analytics">View Detailed Analytics</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -207,70 +288,52 @@ export default function AdminDashboard() {
                   <CardDescription>Products that need to be restocked soon</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="relative w-full overflow-auto">
-                    <table className="w-full caption-bottom text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="h-12 px-4 text-left align-middle font-medium">Product</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Current Stock</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Threshold</th>
-                          <th className="h-12 px-4 text-left align-middle font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {lowStockProducts.map((product) => (
-                          <tr key={product.id} className="border-b">
-                            <td className="p-4 align-middle font-medium">{product.name}</td>
-                            <td className="p-4 align-middle">{product.stock}</td>
-                            <td className="p-4 align-middle">{product.threshold}</td>
-                            <td className="p-4 align-middle">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs ${
-                                  product.stock <= product.threshold / 2
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                                }`}
-                              >
-                                {product.stock <= product.threshold / 2 ? "Critical" : "Low Stock"}
-                              </span>
-                            </td>
+                  {isLoading ? (
+                    <div className="flex justify-center py-8">
+                      <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+                    </div>
+                  ) : lowStockProducts.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      All products are well stocked!
+                    </div>
+                  ) : (
+                    <div className="relative w-full overflow-auto">
+                      <table className="w-full caption-bottom text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="h-12 px-4 text-left align-middle font-medium">Product</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Current Stock</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Threshold</th>
+                            <th className="h-12 px-4 text-left align-middle font-medium">Status</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {lowStockProducts.map((product) => (
+                            <tr key={product.id} className="border-b">
+                              <td className="p-4 align-middle font-medium">{product.name}</td>
+                              <td className="p-4 align-middle">{product.stock_quantity}</td>
+                              <td className="p-4 align-middle">{product.threshold}</td>
+                              <td className="p-4 align-middle">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs ${
+                                    product.stock_quantity <= product.threshold / 2
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {product.stock_quantity <= product.threshold / 2 ? "Critical" : "Low Stock"}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" asChild>
                     <Link href="/admin/products">Manage Inventory</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Inventory Summary</CardTitle>
-                  <CardDescription>Overview of your current inventory</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gray-100 p-4 rounded-md">
-                      <p className="text-sm font-medium text-gray-500">Total Products</p>
-                      <p className="text-2xl font-bold">128</p>
-                    </div>
-                    <div className="bg-gray-100 p-4 rounded-md">
-                      <p className="text-sm font-medium text-gray-500">Out of Stock</p>
-                      <p className="text-2xl font-bold">3</p>
-                    </div>
-                    <div className="bg-gray-100 p-4 rounded-md">
-                      <p className="text-sm font-medium text-gray-500">Low Stock</p>
-                      <p className="text-2xl font-bold">{lowStockProducts.length}</p>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" asChild>
-                    <Link href="/admin/products">View All Products</Link>
                   </Button>
                 </CardFooter>
               </Card>

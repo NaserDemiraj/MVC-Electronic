@@ -4,15 +4,25 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronRight, Minus, Plus, Trash2 } from "lucide-react"
+import { ChevronRight, Minus, Plus, Trash2, Loader2 } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, subtotal } = useCart()
+  const { items, removeItem, updateQuantity, subtotal, isLoaded } = useCart()
 
   const shipping = 0 // Free shipping
   const tax = subtotal * 0.08 // 8% tax
   const total = subtotal + shipping + tax
+
+  // Show loading while cart is being loaded from localStorage
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+        <p className="mt-2 text-gray-600">Loading cart...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

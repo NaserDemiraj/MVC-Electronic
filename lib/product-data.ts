@@ -505,7 +505,21 @@ export const allMockProducts: MockProduct[] = [
 
 // Function to find product by slug
 export function findProductBySlug(slug: string): MockProduct | undefined {
-  return allMockProducts.find(p => p.slug === slug || generateSlug(p.name) === slug)
+  // First try exact match
+  let product = allMockProducts.find(p => p.slug === slug)
+  if (product) return product
+  
+  // Try matching by generated slug from name
+  product = allMockProducts.find(p => generateSlug(p.name) === slug)
+  if (product) return product
+  
+  // Try partial match - if slug starts with or contains the search slug
+  product = allMockProducts.find(p => p.slug.startsWith(slug) || slug.startsWith(p.slug))
+  if (product) return product
+  
+  // Try matching by slug containing the search term
+  product = allMockProducts.find(p => p.slug.includes(slug) || slug.includes(p.slug))
+  return product
 }
 
 // Function to get products by category

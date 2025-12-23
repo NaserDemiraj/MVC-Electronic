@@ -8,51 +8,148 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Loader2 } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function CheckoutPage() {
-  const { items, subtotal, clearCart } = useCart()
-  const { toast } = useToast()
+  const { items, subtotal, clearCart, isLoaded } = useCart()
+  const { addToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
   const [orderNumber, setOrderNumber] = useState("")
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "United States"
+  })
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [shippingMethod, setShippingMethod] = useState("standard")
 
-  const shipping = 0 // Free shipping
+  // Calculate shipping based on selected method
+  const getShippingCost = (method: string) => {
+    switch (method) {
+      case "express":
+        return 9.99
+      case "overnight":
+        return 19.99
+      default:
+        return 0
+    }
+  }
+  
+  const shipping = getShippingCost(shippingMethod)
   const tax = subtotal * 0.08 // 8% tax
   const total = subtotal + shipping + tax
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+    
+    if (!formData.firstName.trim()) errors.firstName = "First name is required"
+    if (!formData.lastName.trim()) errors.lastName = "Last name is required"
+    if (!formData.email.trim()) {
+      errors.email = "Email is required"
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Please enter a valid email"
+    }
+    if (!formData.phone.trim()) errors.phone = "Phone number is required"
+    if (!formData.address.trim()) errors.address = "Address is required"
+    if (!formData.city.trim()) errors.city = "City is required"
+    if (!formData.state.trim()) errors.state = "State is required"
+    if (!formData.zip.trim()) errors.zip = "ZIP code is required"
+    
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate form before submitting
+    if (!validateForm()) {
+      addToast({
+        title: "Please fill in all required fields",
+        description: "Some required information is missing.",
+        variant: "destructive",
+      })
+      return
+    }
+    
     setIsSubmitting(true)
 
-    // Get the email from the form
-    const formElement = e.target as HTMLFormElement
-    const emailInput = formElement.querySelector("#email") as HTMLInputElement
-    const customerEmail = emailInput ? emailInput.value : ""
+    try {
+      // Create order in database with items
+      const response = await fetch("/api/admin/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: `${formData.firstName} ${formData.lastName}`,
+          customer_email: formData.email,
+          subtotal: subtotal,
+          shipping_cost: shipping,
+          tax: tax,
+          total: total,
+          shipping_address: formData.address,
+          shipping_city: formData.city,
+          shipping_state: formData.state,
+          shipping_zip: formData.zip,
+          shipping_country: formData.country,
+          shipping_method: shippingMethod,
+          payment_method: "credit_card",
+          items: items.map(item => ({
+            product_id: item.id,
+            product_name: item.name,
+            quantity: item.quantity,
+            price: item.price
+          }))
+        })
+      })
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+      const data = await response.json()
 
-    // Generate random order number
-    const randomOrderNumber = "EG-" + Math.floor(100000 + Math.random() * 900000).toString()
-    setOrderNumber(randomOrderNumber)
-
-    // Simulate sending confirmation email
-    console.log(`Sending confirmation email to: ${customerEmail}`)
+      if (data.success && data.order) {
+        setOrderNumber(data.order.order_number)
+      } else {
+        // Fallback to random order number if API fails
+        const randomOrderNumber = "EG-" + Math.floor(100000 + Math.random() * 900000).toString()
+        setOrderNumber(randomOrderNumber)
+      }
+    } catch (error) {
+      console.error("Failed to save order:", error)
+      // Fallback to random order number if API fails
+      const randomOrderNumber = "EG-" + Math.floor(100000 + Math.random() * 900000).toString()
+      setOrderNumber(randomOrderNumber)
+    }
 
     // Clear cart and show success
     clearCart()
     setOrderComplete(true)
     setIsSubmitting(false)
 
-    toast({
+    addToast({
       title: "Order placed successfully!",
-      description: `Your order #${randomOrderNumber} has been placed. A confirmation email has been sent to ${customerEmail}.`,
-      duration: 5000,
+      description: `Your order has been placed. A confirmation email has been sent to ${formData.email}.`,
     })
+  }
+
+  // Show loading while cart is being loaded from localStorage
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+        <p className="mt-2 text-gray-600">Loading checkout...</p>
+      </div>
+    )
   }
 
   if (orderComplete) {
@@ -174,44 +271,113 @@ export default function CheckoutPage() {
               <form className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="first-name">First Name</Label>
-                    <Input id="first-name" required />
+                    <Label htmlFor="first-name">First Name <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id="first-name" 
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      className={formErrors.firstName ? "border-red-500" : ""}
+                    />
+                    {formErrors.firstName && <p className="text-red-500 text-xs">{formErrors.firstName}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="last-name">Last Name</Label>
-                    <Input id="last-name" required />
+                    <Label htmlFor="last-name">Last Name <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id="last-name" 
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      className={formErrors.lastName ? "border-red-500" : ""}
+                    />
+                    {formErrors.lastName && <p className="text-red-500 text-xs">{formErrors.lastName}</p>}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" required />
+                  <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className={formErrors.email ? "border-red-500" : ""}
+                  />
+                  {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" required />
+                  <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
+                  <Input 
+                    id="phone" 
+                    type="tel" 
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className={formErrors.phone ? "border-red-500" : ""}
+                  />
+                  {formErrors.phone && <p className="text-red-500 text-xs">{formErrors.phone}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" required />
+                  <Label htmlFor="address">Address <span className="text-red-500">*</span></Label>
+                  <Input 
+                    id="address" 
+                    value={formData.address}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    className={formErrors.address ? "border-red-500" : ""}
+                  />
+                  {formErrors.address && <p className="text-red-500 text-xs">{formErrors.address}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" required />
+                    <Label htmlFor="city">City <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id="city" 
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      className={formErrors.city ? "border-red-500" : ""}                    
+                    />
+                    {formErrors.city && <p className="text-red-500 text-xs">{formErrors.city}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="state">State</Label>
-                    <Input id="state" required />
+                    <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id="state" 
+                      value={formData.state}
+                      onChange={(e) => setFormData({...formData, state: e.target.value})}
+                      className={formErrors.state ? "border-red-500" : ""}
+                    />
+                    {formErrors.state && <p className="text-red-500 text-xs">{formErrors.state}</p>}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="zip">ZIP Code</Label>
-                    <Input id="zip" required />
+                    <Label htmlFor="zip">ZIP Code <span className="text-red-500">*</span></Label>
+                    <Input 
+                      id="zip" 
+                      value={formData.zip}
+                      onChange={(e) => setFormData({...formData, zip: e.target.value})}
+                      className={formErrors.zip ? "border-red-500" : ""}
+                    />
+                    {formErrors.zip && <p className="text-red-500 text-xs">{formErrors.zip}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
-                    <Input id="country" defaultValue="United States" required />
+                    <Select 
+                      value={formData.country} 
+                      onValueChange={(value) => setFormData({...formData, country: value})}
+                    >
+                      <SelectTrigger id="country">
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="United States">United States</SelectItem>
+                        <SelectItem value="Canada">Canada</SelectItem>
+                        <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                        <SelectItem value="Germany">Germany</SelectItem>
+                        <SelectItem value="France">France</SelectItem>
+                        <SelectItem value="Australia">Australia</SelectItem>
+                        <SelectItem value="Japan">Japan</SelectItem>
+                        <SelectItem value="South Korea">South Korea</SelectItem>
+                        <SelectItem value="Netherlands">Netherlands</SelectItem>
+                        <SelectItem value="Sweden">Sweden</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </form>
@@ -220,7 +386,7 @@ export default function CheckoutPage() {
             {/* Shipping Method */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <h2 className="text-lg font-semibold mb-4">Shipping Method</h2>
-              <RadioGroup defaultValue="standard" className="space-y-3">
+              <RadioGroup value={shippingMethod} onValueChange={setShippingMethod} className="space-y-3">
                 <div className="flex items-center justify-between space-x-2 border p-4 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="standard" id="standard" />
