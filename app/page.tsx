@@ -46,7 +46,7 @@ export default function Home() {
       price: 49.99,
       originalPrice: 69.99,
       discount: 20,
-      image: "https://images.unsplash.com/photo-1596994306875-60c4aeb7e7b8?w=500&h=500&fit=crop",
+      image: "https://images.unsplash.com/photo-1589595997281-5f9e3001b942?w=500&h=500&fit=crop",
       description: "Complete kit with Arduino Uno, breadboard, components, and detailed tutorials for beginners",
     },
     {
@@ -55,7 +55,7 @@ export default function Home() {
       price: 59.99,
       originalPrice: 79.99,
       discount: 25,
-      image: "https://images.unsplash.com/photo-1581092162562-40038f56c40d?w=500&h=500&fit=crop",
+      image: "https://images.unsplash.com/photo-1591290619266-89da8b0f9743?w=500&h=500&fit=crop",
       description: "The latest Raspberry Pi with 4GB RAM, perfect for desktop computing and IoT projects",
     },
     {
