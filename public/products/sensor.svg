@@ -1,0 +1,29 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#f0f4f8"/>
+  
+  <!-- Sensor body -->
+  <circle cx="150" cy="130" r="50" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>
+  
+  <!-- Sensor lens -->
+  <circle cx="150" cy="130" r="35" fill="#3b82f6" opacity="0.8"/>
+  <circle cx="150" cy="130" r="30" fill="#60a5fa"/>
+  <circle cx="145" cy="125" r="8" fill="#ffffff" opacity="0.6"/>
+  
+  <!-- Connector pins -->
+  <rect x="140" y="190" width="8" height="30" fill="#fbbf24"/>
+  <rect x="152" y="190" width="8" height="30" fill="#fbbf24"/>
+  
+  <!-- Pin labels -->
+  <circle cx="144" cy="198" r="4" fill="#f59e0b"/>
+  <circle cx="156" cy="198" r="4" fill="#f59e0b"/>
+  
+  <!-- Wires/connections -->
+  <line x1="80" y1="130" x2="100" y2="130" stroke="#ef4444" stroke-width="2"/>
+  <line x1="200" y1="130" x2="220" y2="130" stroke="#10b981" stroke-width="2"/>
+  
+  <!-- Label -->
+  <text x="150" y="270" font-size="16" font-weight="bold" text-anchor="middle" fill="#1e40af">
+    Sensor
+  </text>
+</svg>

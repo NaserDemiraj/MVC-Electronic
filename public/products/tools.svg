@@ -1,0 +1,31 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#f0f4f8"/>
+  
+  <!-- Soldering Iron -->
+  <rect x="60" y="140" width="180" height="30" fill="#4b5563" rx="5"/>
+  
+  <!-- Iron tip -->
+  <polygon points="230,155 260,150 260,160" fill="#ff6b35"/>
+  <polygon points="260,150 270,145 270,165 260,160" fill="#ff8c42"/>
+  
+  <!-- Handle -->
+  <rect x="70" y="145" width="30" height="20" fill="#8b4513" rx="3"/>
+  <rect x="75" y="148" width="20" height="14" fill="#a0522d"/>
+  
+  <!-- Power button -->
+  <circle cx="110" cy="155" r="6" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+  
+  <!-- Temperature dial -->
+  <circle cx="150" cy="155" r="8" fill="#34495e" stroke="#2c3e50" stroke-width="2"/>
+  <line x1="150" y1="147" x2="150" y2="143" stroke="#ecf0f1" stroke-width="2"/>
+  
+  <!-- Heat waves -->
+  <path d="M 265 135 Q 270 130 275 135" stroke="#ff6b35" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M 265 145 Q 270 140 275 145" stroke="#ff6b35" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- Label -->
+  <text x="150" y="270" font-size="16" font-weight="bold" text-anchor="middle" fill="#4b5563">
+    Soldering Tools
+  </text>
+</svg>

@@ -1,0 +1,35 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#f0f4f8"/>
+  
+  <!-- Chip body -->
+  <rect x="60" y="70" width="180" height="140" fill="#1f2937" stroke="#111827" stroke-width="2" rx="8"/>
+  
+  <!-- Chip pins - Top -->
+  <rect x="65" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="85" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="105" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="125" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="145" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="165" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="185" y="55" width="4" height="15" fill="#d97706"/>
+  <rect x="205" y="55" width="4" height="15" fill="#d97706"/>
+  
+  <!-- Chip pins - Bottom -->
+  <rect x="65" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="85" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="105" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="125" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="145" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="165" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="185" y="230" width="4" height="15" fill="#d97706"/>
+  <rect x="205" y="230" width="4" height="15" fill="#d97706"/>
+  
+  <!-- Chip center dot -->
+  <circle cx="150" cy="140" r="5" fill="#f59e0b"/>
+  
+  <!-- Label -->
+  <text x="150" y="270" font-size="16" font-weight="bold" text-anchor="middle" fill="#1f2937">
+    Components
+  </text>
+</svg>
